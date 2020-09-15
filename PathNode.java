@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Class PathNode: a node of the PathTree. Each node holds a character that is part of a mapping rule
  * 
- * routePaths represents the list of paths that the current node is part of, for example:
+ * routeMappings represents the list of mapping rules that the current node is part of, for example:
  * 
  *       `a`
  *      /   \
@@ -13,9 +13,9 @@ import java.util.List;
  *    / \
  *  `c` `d`
  * 
- * Node `a` would have routePaths = ["abc", "abd", "ae"]
- * Node `b` would have routePaths = ["abc", "abd"]
- * Node `c` would have routePaths = ["abc"]
+ * Node `a` would have routeMappings = ["abc", "abd", "ae"]
+ * Node `b` would have routeMappings = ["abc", "abd"]
+ * Node `c` would have routeMappings = ["abc"]
  * etc...
  * 
  * pathSoFar is the path that goes straight from the root until the current node
@@ -25,7 +25,7 @@ import java.util.List;
 public class PathNode {
     private List<PathNode> children = new ArrayList<PathNode>();
     private PathNode parent = null;
-    private List<String> routePaths = new ArrayList<>();
+    private List<MappingRule> routeMappings = new ArrayList<>();
     private String pathSoFar;
     private char data;
 
@@ -47,37 +47,37 @@ public class PathNode {
      * @param path the entire path to insert
      * @param index the index of the character that will be inserted in the current node
      */
-    public void insert(String path, int index) {
-        char tmpData = path.charAt(index);
-        String tmpPathSoFar = path.substring(0, index + 1);
+    public void insert(MappingRule mappingRule, int index) {
+        char tmpData = mappingRule.getPath().charAt(index);
+        String tmpPathSoFar = mappingRule.getPath().substring(0, index + 1);
         if (this.data != '\u0000' && this.data != tmpData /*|| (pathSoFar != null && !pathSoFar.equals(tmpPathSoFar))*/) {
             throw new IllegalArgumentException("can't insert value on node with different data");
         }
-        if(!routePaths.contains(path))
-            this.routePaths.add(path);
+        if(!routeMappings.contains(mappingRule))
+            this.routeMappings.add(mappingRule);
         pathSoFar = tmpPathSoFar;
-        if ((this.isLeaf() || index == path.length()-1) && this.data != '\u0000') {
-            System.out.println("Duplicate rules: " + Arrays.toString(routePaths.toArray()));
-        }
+
+        MappingRulesController.validateInsertion(this, mappingRule, index);
+
         this.data = tmpData; //here this.data is either null or it has the same value of tmpData
         System.out.println("set this node's data to: " + this.data);
         //from here we go on with the children
-        if (index < path.length()-1) {
+        if (index < mappingRule.getPath().length()-1) {
             boolean foundChild = false;
             for(PathNode child : this.children){
-                if(child.getData() == path.charAt(index+1)){
+                if(child.getData() == mappingRule.getPath().charAt(index+1)){
                     System.out.println("found existing child");
-                    child.insert(path, index+1);
+                    child.insert(mappingRule, index+1);
                     foundChild = true;
                 }
             }
             if(!foundChild){
                 PathNode child = new PathNode();
                 this.addChild(child);
-                child.insert(path, index + 1);
+                child.insert(mappingRule, index + 1);
             }
         }else{
-            System.out.println("Finished adding mapping rule with path: " + path);
+            System.out.println("Finished adding mapping rule: " + mappingRule.toString());
         }
     }
 
@@ -109,5 +109,9 @@ public class PathNode {
 
     public void removeParent() {
         this.parent = null;
+    }
+
+    public List<MappingRule> getRouteMappings(){
+        return this.routeMappings;
     }
 }
