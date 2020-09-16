@@ -1,10 +1,23 @@
 public class TestPathNode{
     public static void main(String[]args){
-        String[] mappingRulesPaths = new String[]{"/foo/bar","/foo/bar/test","/whatever","/fo"};
-        PathTree tree = new PathTree();
-        for(String mappingRulePath : mappingRulesPaths){
-            MappingRule mappingRule = new MappingRule("GET", mappingRulePath);
-            tree.insertMappingRule(mappingRule);
-        }
+        Service service1 = new Service("example.org");
+        service1.addProductMappingRule(new MappingRule("GET", "/foo/bar"));
+        service1.addProductMappingRule(new MappingRule("GET", "/foo/bar/test"));
+        service1.addProductMappingRule(new MappingRule("GET", "/whatever"));
+        service1.addProductMappingRule(new MappingRule("GET", "/fo"));
+
+        Service service2 = new Service("example.org");
+        service1.addProductMappingRule(new MappingRule("GET", "/foo/bar"));
+        service1.addProductMappingRule(new MappingRule("GET", "/foo/bar/test"));
+        service1.addProductMappingRule(new MappingRule("GET", "/whatever"));
+        service1.addProductMappingRule(new MappingRule("GET", "/fo"));
+
+        
+        APIcast apicast = new APIcast();
+        apicast.setPathRoutingOnlyEnabled(true);
+        apicast.addService(service1);
+        apicast.addService(service2);
+        apicast.validateAllServices();
+        
     }
 }

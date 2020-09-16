@@ -1,11 +1,20 @@
 public class MappingRule{
     private String method;
     private String path;
+    private String serviceHost;
     private boolean markedForDeletion = false;
 
     public MappingRule(String method, String path){
         this.method = method;
         this.path = path;
+    }
+
+    public void setHost(String host){
+        this.serviceHost = host;
+    }
+
+    public String getHost(){
+        return this.serviceHost;
     }
 
     public String getPath(){
@@ -26,7 +35,7 @@ public class MappingRule{
 
     @Override
     public String toString(){
-        return this.method + " " + this.path;
+        return this.method + " " + this.path + " host: " + serviceHost;
     }
 
     @Override
