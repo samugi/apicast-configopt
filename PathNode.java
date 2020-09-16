@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -26,6 +25,7 @@ public class PathNode {
     private List<PathNode> children = new ArrayList<PathNode>();
     private PathNode parent = null;
     private List<MappingRule> routeMappings = new ArrayList<>();
+    private List<MappingRule> mappingRulesEndingHere = new ArrayList<>();
     private String pathSoFar;
     private char data;
 
@@ -66,7 +66,6 @@ public class PathNode {
             boolean foundChild = false;
             for(PathNode child : this.children){
                 if(child.getData() == mappingRule.getPath().charAt(index+1)){
-                    System.out.println("found existing child");
                     child.insert(mappingRule, index+1);
                     foundChild = true;
                 }
@@ -78,6 +77,7 @@ public class PathNode {
             }
         }else{
             System.out.println("Finished adding mapping rule: " + mappingRule.toString());
+            this.mappingRulesEndingHere.add(mappingRule);
         }
     }
 
@@ -113,5 +113,9 @@ public class PathNode {
 
     public List<MappingRule> getRouteMappings(){
         return this.routeMappings;
+    }
+
+    public List<MappingRule> getMappingRulesEndingHere(){
+        return this.mappingRulesEndingHere;
     }
 }
