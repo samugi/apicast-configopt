@@ -1,5 +1,7 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Class PathNode: a node of the PathTree. Each node holds a character that is part of a mapping rule
@@ -22,10 +24,10 @@ import java.util.List;
  * 
  */
 public class PathNode {
-    private List<PathNode> children = new ArrayList<PathNode>();
+    private List<PathNode> children = new CopyOnWriteArrayList<>();
     private PathNode parent = null;
-    private List<MappingRule> routeMappings = new ArrayList<>();
-    private List<MappingRule> mappingRulesEndingHere = new ArrayList<>();
+    private List<MappingRule> routeMappings =  new CopyOnWriteArrayList<>();
+    private List<MappingRule> mappingRulesEndingHere = new CopyOnWriteArrayList<>();
     private String pathSoFar;
     private char data;
 
@@ -53,12 +55,12 @@ public class PathNode {
         if (this.data != '\u0000' && this.data != tmpData /*|| (pathSoFar != null && !pathSoFar.equals(tmpPathSoFar))*/) {
             throw new IllegalArgumentException("can't insert value on node with different data");
         }
-        if(!routeMappings.contains(mappingRule))
-            this.routeMappings.add(mappingRule);
-        pathSoFar = tmpPathSoFar;
+        
+        if(!mappingRule.forceInsertion() && !MappingRulesController.validateInsertion(this, mappingRule, index))
+            return;
 
-        MappingRulesController.validateInsertion(this, mappingRule, index);
-
+        this.routeMappings.add(mappingRule);
+        this.pathSoFar = tmpPathSoFar;
         this.data = tmpData; //here this.data is either null or it has the same value of tmpData
         System.out.println("set this node's data to: " + this.data);
         //from here we go on with the children
@@ -81,6 +83,27 @@ public class PathNode {
         }
     }
 
+
+    /**
+     * Recursively removes the characters in "path" starting from "index" from the current Node and its children
+     * @param path the entire path to remove
+     * @param index the index of the character that will be inserted in the current node
+     */
+    public void remove(MappingRule mappingRule, int index) {
+        routeMappings.remove(mappingRule);
+        if(this.routeMappings.size() == 0)
+            this.removeParent();
+        if (index < mappingRule.getPath().length()-1) {
+            for(PathNode child : this.children){
+                if(child.getData() == mappingRule.getPath().charAt(index+1))
+                    child.remove(mappingRule, index+1);
+            }
+        }else{
+            System.out.println("Finished removing mapping rule: " + mappingRule.toString());
+            this.mappingRulesEndingHere.remove(mappingRule); //useless
+        }
+    }
+
     public void setParent(PathNode parent) {
         this.parent = parent;
     }
@@ -88,6 +111,11 @@ public class PathNode {
     public void addChild(PathNode child) {
         child.setParent(this);
         this.children.add(child);
+    }
+
+    public void removeChild(PathNode child){
+        child.setParent(null);
+        this.children.remove(child);
     }
 
     public char getData() {
@@ -108,6 +136,7 @@ public class PathNode {
     }
 
     public void removeParent() {
+        this.parent.removeChild(this);
         this.parent = null;
     }
 
@@ -118,4 +147,11 @@ public class PathNode {
     public List<MappingRule> getMappingRulesEndingHere(){
         return this.mappingRulesEndingHere;
     }
+
+	public void removeMappingRuleFromTree(MappingRule mr) {
+        PathNode root = this;
+        while(root.parent != null)
+            root = root.parent;
+        root.remove(mr, 0);
+	}
 }
