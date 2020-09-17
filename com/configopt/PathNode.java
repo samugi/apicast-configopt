@@ -13,7 +13,11 @@ import java.util.logging.Logger;
  * routeMappings represents the list of mapping rules that the current node is
  * part of, for example:
  * 
- * `a` / \ `b` `e` / \ `c` `d`
+ *     `a` 
+ *     / \ 
+ *   `b` `e` 
+ *   / \  
+ * `c` `d`
  * 
  * Node `a` would have routeMappings = ["abc", "abd", "ae"] Node `b` would have
  * routeMappings = ["abc", "abd"] Node `c` would have routeMappings = ["abc"]
