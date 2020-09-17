@@ -3,10 +3,19 @@ public class MappingRule{
     private String path;
     private String serviceHost;
     private boolean markedForDeletion = false;
+    private boolean forceInsertion = false;
 
     public MappingRule(String method, String path){
         this.method = method;
         this.path = path;
+    }
+
+    public void setForceInsertion(boolean force){
+        this.forceInsertion = force;
+    }
+
+    public boolean forceInsertion(){
+        return this.forceInsertion;
     }
 
     public void setHost(String host){
