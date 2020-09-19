@@ -1,6 +1,6 @@
 package com.configopt;
 
-import com.configopt.GlobalController.Mode;
+import com.configopt.Utils.Mode;
 
 public class TestPathNode {
     public static void main(String[]args){
@@ -16,7 +16,7 @@ public class TestPathNode {
         service1.addProductMappingRule(new MappingRule("GET", "/whatever"));
         service1.addProductMappingRule(new MappingRule("GET", "/fo"));
 
-        GlobalController.mode = Mode.STDOUTPUT;
+        Utils.mode = Mode.STDOUTPUT;
         APIcast apicast = new APIcast();
         apicast.setPathRoutingOnlyEnabled(true);
         apicast.addService(service1);
