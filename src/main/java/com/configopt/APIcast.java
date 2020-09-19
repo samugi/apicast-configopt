@@ -94,9 +94,7 @@ public class APIcast {
                 //generate output config here 
                 break;
             case STDOUTPUT:
-                for (CollisionIssue issue : MappingRulesUtils.issues) {
-                    System.out.println(issue);
-                }
+                OutputUtils.printIssues(MappingRulesUtils.issues);
                 break;
         }
     }
