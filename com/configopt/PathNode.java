@@ -65,7 +65,7 @@ public class PathNode {
             throw new IllegalArgumentException("can't insert value on node with different data");
         }
 
-        if (!mappingRule.forceInsertion() && !MappingRulesController.validateInsertion(this, mappingRule, index))
+        if (!mappingRule.forceInsertion() && !MappingRulesUtils.validateInsertion(this, mappingRule, index))
             return;
 
         this.routeMappings.add(mappingRule);

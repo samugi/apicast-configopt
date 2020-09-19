@@ -89,12 +89,12 @@ public class APIcast {
                     tree.insertMappingRule(mappingRule);
         }
 
-        switch (GlobalController.mode) {
+        switch (Utils.mode) {
             case INTERACTIVE:
                 //generate output config here 
                 break;
             case STDOUTPUT:
-                for (CollisionIssue issue : MappingRulesController.issues) {
+                for (CollisionIssue issue : MappingRulesUtils.issues) {
                     System.out.println(issue);
                 }
                 break;
