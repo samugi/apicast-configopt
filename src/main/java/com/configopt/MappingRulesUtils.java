@@ -15,7 +15,7 @@ public class MappingRulesUtils {
 
     public static boolean validateInsertion(final PathNode node, final MappingRule mappingRule, final int index){
         List<MappingRule> mrEndingInThisNode = node.getMappingRulesEndingHere();
-        if(mrEndingInThisNode.size() > 0){
+        if(mrEndingInThisNode.size() > 0 && sameMethod(mappingRule, mrEndingInThisNode)){
             if(Utils.mode == Mode.STDOUTPUT){
                 for(MappingRule mr : mrEndingInThisNode){
                     if(mr.equals(mappingRule))
@@ -38,5 +38,13 @@ public class MappingRulesUtils {
             return insert;
         }
         return true;
+    }
+
+    private static boolean sameMethod(MappingRule mappingRule, List<MappingRule> mrEndingInThisNode){
+        boolean same = false;
+        for(MappingRule mr : mrEndingInThisNode){
+            same = same || mr.getMethod().equals(mappingRule.getMethod());
+        }
+        return same;
     }
 }

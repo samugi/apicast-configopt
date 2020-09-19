@@ -1,7 +1,6 @@
 package com.configopt;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class CollisionIssue {
@@ -17,8 +16,11 @@ public class CollisionIssue {
     public String toString(){
         StringBuilder sb = new StringBuilder();
         sb.append("Issue found: " + problemDescription + " for rules : ");
-        for(MappingRule mr : rules)
-            sb.append(mr);
+        for(int i = 0; i < rules.size(); i++){
+            sb.append(rules.get(i));
+            if(i < rules.size() -1 )
+                sb.append(", ");
+        }
         return sb.toString();
     }
 }

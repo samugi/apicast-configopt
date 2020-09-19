@@ -12,14 +12,12 @@ public class TestPathNode {
 
         Options options = new Options();
 
-        Option configurationOption = Option.builder("c")
-                                            .longOpt("configuration")
-                                            .required(true)
-                                            .desc("JSON configuration file path")
-                                            .hasArg()
-                                            .build();
+        Option configurationOption = Option.builder("c").longOpt("configuration").required(true).desc("JSON configuration file path").hasArg().build();
+        Option outputFileOption = Option.builder("o").longOpt("output").required(false).desc("output file").hasArg().build();
+        
       //  configurationOption.setRequired(true);
         options.addOption(configurationOption);
+        options.addOption(outputFileOption);
 
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
@@ -35,6 +33,7 @@ public class TestPathNode {
         }
 
         String inputFilePath = cmd.getOptionValue("configuration");
+        OutputUtils.outputFile = cmd.getOptionValue("output");
         JSONObject JSONConfig = Utils.extractConfigJSONFromFile(inputFilePath);
         List<Service> services = Utils.createServicesFromJSONConfig(JSONConfig);
 
