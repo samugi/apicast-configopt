@@ -51,7 +51,7 @@ public class TestPathNode {
         // service1.addProductMappingRule(new MappingRule("GET", "/whatever"));
         // service1.addProductMappingRule(new MappingRule("GET", "/fo"));
 
-        Utils.mode = Mode.STDOUTPUT;
+        Utils.mode = Mode.SCAN;
         APIcast apicast = new APIcast();
         apicast.setPathRoutingEnabled(true);
         for(Service service : services){

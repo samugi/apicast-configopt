@@ -90,10 +90,10 @@ public class APIcast {
         }
 
         switch (Utils.mode) {
-            case INTERACTIVE:
+            case FIX:
                 //generate output config here 
                 break;
-            case STDOUTPUT:
+            case SCAN:
                 OutputUtils.printIssues(MappingRulesUtils.issues);
                 break;
         }
