@@ -16,7 +16,7 @@ public class MappingRulesUtils {
     public static boolean validateInsertion(final PathNode node, final MappingRule mappingRule, final int index){
         List<MappingRule> mrEndingInThisNode = node.getMappingRulesEndingHere();
         if(mrEndingInThisNode.size() > 0 && sameMethod(mappingRule, mrEndingInThisNode)){
-            if(Utils.mode == Mode.STDOUTPUT){
+            if(Utils.mode == Mode.SCAN){
                 for(MappingRule mr : mrEndingInThisNode){
                     if(mr.equals(mappingRule))
                         issues.add(new CollisionIssue(new ArrayList<MappingRule>(Arrays.asList(mappingRule, mr)), "identical rules"));

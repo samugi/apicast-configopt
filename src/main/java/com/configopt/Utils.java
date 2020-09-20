@@ -10,10 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Utils {
-    protected static Mode mode = Mode.STDOUTPUT;
+    protected static Mode mode = Mode.SCAN;
 
     public enum Mode {
-        STDOUTPUT, INTERACTIVE
+        SCAN, FIX
     };
 
     protected static JSONObject extractConfigJSONFromFile(String filePath) {
