@@ -4,12 +4,18 @@ public class MappingRule{
     private String method;
     private String path;
     private String serviceHost;
+    private Long serviceId;
     private boolean markedForDeletion = false;
     private boolean forceInsertion = false;
 
-    public MappingRule(String method, String path){
+    public MappingRule(String method, String path, Long serviceId){
         this.method = method;
         this.path = path;
+        this.serviceId = serviceId;
+    }
+
+    public Long getServiceId(){
+        return this.serviceId;
     }
 
     public void setForceInsertion(boolean force){
@@ -46,7 +52,7 @@ public class MappingRule{
 
     @Override
     public String toString(){
-        return this.method + " " + this.path + " host: " + serviceHost;
+        return this.method + " " + this.path + " - Service ID: " + this.serviceId + " Host: " + serviceHost;
     }
 
     @Override

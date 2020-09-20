@@ -57,7 +57,7 @@ public class PathNode {
      * @param index the index of the character that will be inserted in the current
      *              node
      */
-    public void insert(MappingRule mappingRule, int index) {
+    public void insert(APIcast apicast, MappingRule mappingRule, int index) {
         char tmpData = mappingRule.getPath().charAt(index);
         String tmpPathSoFar = mappingRule.getPath().substring(0, index + 1);
         if (this.data != '\u0000'
@@ -65,7 +65,7 @@ public class PathNode {
             throw new IllegalArgumentException("can't insert value on node with different data");
         }
 
-        if (!mappingRule.forceInsertion() && !MappingRulesUtils.validateInsertion(this, mappingRule, index))
+        if (!mappingRule.forceInsertion() && !MappingRulesUtils.validateInsertion(apicast, this, mappingRule, index))
             return;
 
         this.routeMappings.add(mappingRule);
@@ -77,14 +77,14 @@ public class PathNode {
             boolean foundChild = false;
             for (PathNode child : this.children) {
                 if (child.getData() == mappingRule.getPath().charAt(index + 1)) {
-                    child.insert(mappingRule, index + 1);
+                    child.insert(apicast, mappingRule, index + 1);
                     foundChild = true;
                 }
             }
             if (!foundChild) {
                 PathNode child = new PathNode();
                 this.addChild(child);
-                child.insert(mappingRule, index + 1);
+                child.insert(apicast, mappingRule, index + 1);
             }
         } else {
             logger.log(Level.INFO, "Finished adding mapping rule: " + mappingRule.toString());

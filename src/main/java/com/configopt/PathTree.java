@@ -4,9 +4,9 @@ public class PathTree{
 
     public PathNode root = null;
 
-    public void insertMappingRule(MappingRule mappingRule){
+    public void insertMappingRule(APIcast apicast, MappingRule mappingRule){
         if(root == null)
             root = new PathNode();
-        root.insert(mappingRule, 0);
+        root.insert(apicast, mappingRule, 0);
     }
 }

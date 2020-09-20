@@ -3,12 +3,14 @@ package com.configopt;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 public class OutputUtils {
     static String outputFile = null;
 
     public static void printIssues(List<CollisionIssue> issues) {
+        Collections.sort(issues);
         if (outputFile == null) {
             for (CollisionIssue issue : MappingRulesUtils.issues) {
                 System.out.println(issue);
