@@ -13,7 +13,7 @@ public class Utils {
     protected static Mode mode = Mode.SCAN;
 
     public enum Mode {
-        SCAN, FIX
+        SCAN, FIXINTERACTIVE
     };
 
     protected static JSONObject extractConfigJSONFromFile(String filePath) {
@@ -40,8 +40,9 @@ public class Utils {
     }
 
     private static void createServiceFromJSONService(List<Service> services, JSONObject JSONService) {
-        Service service = new Service((String) extractProxyFromJSONService(JSONService).get("endpoint"));
-        JSONArray rules = (JSONArray) extractProxyFromJSONService(JSONService).get("proxy_rules");
+        JSONObject proxy = extractProxyFromJSONService(JSONService);
+        Service service = new Service((Long) proxy.get("id"), (String) proxy.get("endpoint"));
+        JSONArray rules = (JSONArray) proxy.get("proxy_rules");
         rules.forEach(rule -> addMappingRuleFromJSONRuleToService(service, (JSONObject) rule));
         services.add(service);
     }
@@ -51,8 +52,20 @@ public class Utils {
     }
 
     private static void addMappingRuleFromJSONRuleToService(Service service, JSONObject JSONRule) {
-        service.addProductMappingRule(
-                new MappingRule((String) JSONRule.get("http_method"), (String) JSONRule.get("pattern")));
+        service.addProductMappingRule(new MappingRule((String) JSONRule.get("http_method"),
+                (String) JSONRule.get("pattern"), service.getId()));
+    }
+
+    /** Calculate severity of the mapping rules partial or full match assuming:
+     *  The mapping rules methods are the same
+     *  The services' hosts are colliding depending on the path routing rules (this is done in APIcast#createServiceGroups())
+     *  The mapping rules partially match each others
+     */
+    public static int calculateSeverity(APIcast apicast, MappingRule mr, MappingRule mappingRule) {
+        int severity = 5;
+        if ((apicast.getPathRoutingEnabled() || apicast.getPathRoutingOnlyEnabled()) && mr.getServiceId() != mappingRule.getServiceId())
+            severity = 1;
+        return severity;
     }
 
 }

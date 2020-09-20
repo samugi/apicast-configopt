@@ -12,10 +12,12 @@ public class ConfigOptTest
     @Test
     public void alwaysReturnTrueInScanMode()
     {
+        APIcast apicast = new APIcast();
+        apicast.setPathRoutingEnabled(true);
         Utils.mode = Mode.SCAN;
         PathNode node = new PathNode();
-        MappingRule mappingRule = new MappingRule("GET", "/");
-        node.insert(mappingRule, 0);
-        assertTrue(MappingRulesUtils.validateInsertion(node, mappingRule, 0));
+        MappingRule mappingRule = new MappingRule("GET", "/", 0l);
+        node.insert(apicast, mappingRule, 0);
+        assertTrue(MappingRulesUtils.validateInsertion(apicast, node, mappingRule, 0));
     }
 }

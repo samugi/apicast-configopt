@@ -86,11 +86,11 @@ public class APIcast {
             PathTree tree = new PathTree();
             for (Service service : serviceGroup)
                 for (MappingRule mappingRule : service.getProductMappingRules())
-                    tree.insertMappingRule(mappingRule);
+                    tree.insertMappingRule(this, mappingRule);
         }
 
         switch (Utils.mode) {
-            case FIX:
+            case FIXINTERACTIVE:
                 //generate output config here 
                 break;
             case SCAN:

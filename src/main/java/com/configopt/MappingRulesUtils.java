@@ -13,36 +13,41 @@ public class MappingRulesUtils {
     protected static List<CollisionIssue> issues = new ArrayList<>();
     static Logger logger = Logger.getLogger(MappingRulesUtils.class.getName());
 
-    public static boolean validateInsertion(final PathNode node, final MappingRule mappingRule, final int index){
+    public static boolean validateInsertion(APIcast apicast, final PathNode node, final MappingRule mappingRule,
+            final int index) {
         List<MappingRule> mrEndingInThisNode = node.getMappingRulesEndingHere();
-        if(mrEndingInThisNode.size() > 0 && sameMethod(mappingRule, mrEndingInThisNode)){
-            if(Utils.mode == Mode.SCAN){
-                for(MappingRule mr : mrEndingInThisNode){
-                    if(mr.equals(mappingRule))
-                        issues.add(new CollisionIssue(new ArrayList<MappingRule>(Arrays.asList(mappingRule, mr)), "identical rules"));
-                    else
-                        issues.add(new CollisionIssue(new ArrayList<MappingRule>(Arrays.asList(mappingRule, mr)), "one rule matches the other"));
-                }
-                return true;
-            }
+        if (mrEndingInThisNode.size() > 0) {
+            boolean insert = true;
+            for (MappingRule mr : mrEndingInThisNode) {
+                if (!mr.getMethod().equals(mappingRule.getMethod())) // ignore if different methods
+                    return true;
 
-            logger.log(Level.INFO, "This rule: `" + mappingRule + "` collides with: " + Arrays.toString(mrEndingInThisNode.toArray()));
-            boolean insert = UserInputManager.requestMappingKeep(mappingRule);
-            if(insert)
-                mappingRule.setForceInsertion(true); //ask the user only once for each rule
-        
-            for(MappingRule mr : mrEndingInThisNode){
-                if(!UserInputManager.requestMappingKeep(mr))
-                    node.removeMappingRuleFromTree(mr);
+                if (Utils.mode == Mode.SCAN) {
+                    int severity = Utils.calculateSeverity(apicast, mr, mappingRule);
+                    if (mr.equals(mappingRule))
+                        issues.add(new CollisionIssue(new ArrayList<MappingRule>(Arrays.asList(mappingRule, mr)),
+                                "identical rules", severity));
+                    else
+                        issues.add(new CollisionIssue(new ArrayList<MappingRule>(Arrays.asList(mappingRule, mr)),
+                                "one rule matches the other", severity));
+                } else if (Utils.mode == Mode.FIXINTERACTIVE) {
+                    logger.log(Level.INFO, "This rule: `" + mappingRule + "` collides with: "
+                            + Arrays.toString(mrEndingInThisNode.toArray()));
+                    insert = UserInputManager.requestMappingKeep(mappingRule);
+                    if (insert)
+                        mappingRule.setForceInsertion(true); // ask the user only once for each rule
+                    if (!insert && !UserInputManager.requestMappingKeep(mr)) //avoid asking to remove the ones already inserted if the user already removed the current
+                        node.removeMappingRuleFromTree(mr);
+                }
             }
             return insert;
         }
         return true;
     }
 
-    private static boolean sameMethod(MappingRule mappingRule, List<MappingRule> mrEndingInThisNode){
+    private static boolean sameMethod(MappingRule mappingRule, List<MappingRule> mrEndingInThisNode) {
         boolean same = false;
-        for(MappingRule mr : mrEndingInThisNode){
+        for (MappingRule mr : mrEndingInThisNode) {
             same = same || mr.getMethod().equals(mappingRule.getMethod());
         }
         return same;
