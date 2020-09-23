@@ -1,5 +1,6 @@
 package com.configopt;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -8,14 +9,16 @@ import org.apache.commons.cli.*;
 import org.json.simple.JSONObject;
 
 public class TestPathNode {
-    public static void main(String[]args){
+    public static void main(String[] args) {
 
         Options options = new Options();
 
-        Option configurationOption = Option.builder("c").longOpt("configuration").required(true).desc("JSON configuration file path").hasArg().build();
-        Option outputFileOption = Option.builder("o").longOpt("output").required(false).desc("output file").hasArg().build();
-        
-      //  configurationOption.setRequired(true);
+        Option configurationOption = Option.builder("c").longOpt("configuration").required(true)
+                .desc("JSON configuration file path").hasArg().build();
+        Option outputFileOption = Option.builder("o").longOpt("output").required(false).desc("output file").hasArg()
+                .build();
+
+        // configurationOption.setRequired(true);
         options.addOption(configurationOption);
         options.addOption(outputFileOption);
 
@@ -23,7 +26,7 @@ public class TestPathNode {
         HelpFormatter formatter = new HelpFormatter();
         CommandLine cmd = null;
 
-        System.out.println("args: "+ Arrays.toString(args));
+        System.out.println("args: " + Arrays.toString(args));
         try {
             cmd = parser.parse(options, args);
         } catch (ParseException e) {
@@ -37,27 +40,28 @@ public class TestPathNode {
         JSONObject JSONConfig = Utils.extractConfigJSONFromFile(inputFilePath);
         List<Service> services = Utils.createServicesFromJSONConfig(JSONConfig);
 
-        
+        // Service service1 = new Service(12l, "example.org");
+        // service1.addProductMappingRule(new MappingRule("GET", "/foo/bar", 12l));
+        // service1.addProductMappingRule(new MappingRule("GET", "/foo/bar/test", 12l));
+        // service1.addProductMappingRule(new MappingRule("GET", "/whatever", 12l));
+        // service1.addProductMappingRule(new MappingRule("GET", "/fo", 12l));
 
-        // Service service1 = new Service("example.org");
-        // service1.addProductMappingRule(new MappingRule("GET", "/foo/bar"));
-        // service1.addProductMappingRule(new MappingRule("GET", "/foo/bar/test"));
-        // service1.addProductMappingRule(new MappingRule("GET", "/whatever"));
-        // service1.addProductMappingRule(new MappingRule("GET", "/fo"));
-
-        // Service service2 = new Service("example.org");
-        // service1.addProductMappingRule(new MappingRule("GET", "/foo/bar"));
-        // service1.addProductMappingRule(new MappingRule("GET", "/foo/bar/test"));
-        // service1.addProductMappingRule(new MappingRule("GET", "/whatever"));
-        // service1.addProductMappingRule(new MappingRule("GET", "/fo"));
+        // Service service2 = new Service(12l, "example.org");
+        // service1.addProductMappingRule(new MappingRule("GET", "/foo/bar", 12l));
+        // service1.addProductMappingRule(new MappingRule("GET", "/foo/bar/test", 12l));
+        // service1.addProductMappingRule(new MappingRule("GET", "/whatever", 12l));
+        // service1.addProductMappingRule(new MappingRule("GET", "/fo", 12l));
+        // List<Service> services = new ArrayList<>();
+        // services.add(service1);
+        // services.add(service2);
 
         Utils.mode = Mode.SCAN;
         APIcast apicast = new APIcast();
         apicast.setPathRoutingEnabled(true);
-        for(Service service : services){
+        for (Service service : services) {
             apicast.addService(service);
         }
         apicast.validateAllServices();
-        
+
     }
 }

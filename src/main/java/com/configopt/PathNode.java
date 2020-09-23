@@ -1,10 +1,10 @@
 package com.configopt;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+//import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * Class PathNode: a node of the PathTree. Each node holds a character that is
@@ -13,11 +13,7 @@ import java.util.logging.Logger;
  * routeMappings represents the list of mapping rules that the current node is
  * part of, for example:
  * 
- *     `a` 
- *     / \ 
- *   `b` `e` 
- *   / \  
- * `c` `d`
+ * `a` / \ `b` `e` / \ `c` `d`
  * 
  * Node `a` would have routeMappings = ["abc", "abd", "ae"] Node `b` would have
  * routeMappings = ["abc", "abd"] Node `c` would have routeMappings = ["abc"]
@@ -28,10 +24,10 @@ import java.util.logging.Logger;
  * 
  */
 public class PathNode {
-    private List<PathNode> children = new CopyOnWriteArrayList<>();
+    private List<PathNode> children = new ArrayList<>();//new CopyOnWriteArrayList<>();
     private PathNode parent = null;
-    private List<MappingRule> routeMappings = new CopyOnWriteArrayList<>();
-    private List<MappingRule> mappingRulesEndingHere = new CopyOnWriteArrayList<>();
+    private List<MappingRule> routeMappings = new ArrayList<>(); //new CopyOnWriteArrayList<>();
+    private List<MappingRule> mappingRulesEndingHere = new ArrayList<>(); //new CopyOnWriteArrayList<>();
     private String pathSoFar;
     private char data;
     Logger logger = Logger.getLogger(PathNode.class.getName());
@@ -93,23 +89,56 @@ public class PathNode {
     }
 
     /**
-     * Recursively removes the characters in "path" starting from "index" from the current Node and its children
-     * @param path the entire path to remove
-     * @param index the index of the character that will be inserted in the current node
+     * Recursively removes the characters in "path" starting from "index" from the
+     * current Node and its children
+     * 
+     * @param path  the entire path to remove
+     * @param index the index of the character that will be inserted in the current
+     *              node
+     */
+    public void removeRecursive(MappingRule mappingRule, int index) {
+        routeMappings.remove(mappingRule);
+        if (this.routeMappings.size() == 0 && !this.isRoot())
+            this.removeParent();
+        if (index < mappingRule.getPath().length() - 1) {
+            for (PathNode child : this.children) {
+                if (child.getData() == mappingRule.getPath().charAt(index + 1))
+                    child.remove(mappingRule, index + 1);
+            }
+        } else {
+            logger.log(Level.INFO, "Finished removing mapping rule: " + mappingRule.toString());
+            this.mappingRulesEndingHere.remove(mappingRule); // useless
+        }
+    }
+
+    /**
+     * Removes the characters in "path" starting from "index" from the current Node
+     * and its children
+     * 
+     * @param path  the entire path to remove
+     * @param index the index of the character that will be inserted in the current
+     *              node
      */
     public void remove(MappingRule mappingRule, int index) {
-        routeMappings.remove(mappingRule);
-        if(this.routeMappings.size() == 0)
-            this.removeParent();
-        if (index < mappingRule.getPath().length()-1) {
-            for(PathNode child : this.children){
-                if(child.getData() == mappingRule.getPath().charAt(index+1))
-                    child.remove(mappingRule, index+1);
+        PathNode node = this;
+        while (index < mappingRule.getPath().length() -1) {
+            List<PathNode> children = node.getChildren();
+
+            node.getRouteMappings().remove(mappingRule);
+            if (node.routeMappings.size() == 0 && !node.isRoot())
+                node.removeParent();
+
+            for (PathNode child : children) {
+                if (child.getData() == mappingRule.getPath().charAt(index + 1)) {
+                    node = child;
+                    index++;
+                    continue;
+                }
             }
-        }else{
-            logger.log(Level.INFO, "Finished removing mapping rule: " + mappingRule.toString());
-            this.mappingRulesEndingHere.remove(mappingRule); //useless
         }
+
+        logger.log(Level.INFO, "Finished removing mapping rule: " + mappingRule.toString());
+        this.mappingRulesEndingHere.remove(mappingRule); // useless
     }
 
     public void setParent(PathNode parent) {
@@ -121,7 +150,7 @@ public class PathNode {
         this.children.add(child);
     }
 
-    public void removeChild(PathNode child){
+    public void removeChild(PathNode child) {
         child.setParent(null);
         this.children.remove(child);
     }
@@ -134,7 +163,6 @@ public class PathNode {
         this.data = data;
     }
 
-  
     public boolean isRoot() {
         return (this.parent == null);
     }
@@ -143,23 +171,27 @@ public class PathNode {
         return this.children.size() == 0;
     }
 
+    public List<PathNode> getChildren() {
+        return this.children;
+    }
+
     public void removeParent() {
         this.parent.removeChild(this);
         this.parent = null;
     }
 
-    public List<MappingRule> getRouteMappings(){
+    public List<MappingRule> getRouteMappings() {
         return this.routeMappings;
     }
 
-    public List<MappingRule> getMappingRulesEndingHere(){
+    public List<MappingRule> getMappingRulesEndingHere() {
         return this.mappingRulesEndingHere;
     }
 
-	public void removeMappingRuleFromTree(MappingRule mr) {
+    public void removeMappingRuleFromTree(MappingRule mr) {
         PathNode root = this;
-        while(root.parent != null)
+        while (root.parent != null)
             root = root.parent;
         root.remove(mr, 0);
-	}
+    }
 }

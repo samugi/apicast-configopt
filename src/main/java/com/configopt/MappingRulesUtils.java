@@ -31,12 +31,12 @@ public class MappingRulesUtils {
                         issues.add(new CollisionIssue(new ArrayList<MappingRule>(Arrays.asList(mappingRule, mr)),
                                 "one rule matches the other", severity));
                 } else if (Utils.mode == Mode.FIXINTERACTIVE) {
-                    logger.log(Level.INFO, "This rule: `" + mappingRule + "` collides with: "
+                    logger.log(Level.INFO, "This rule: [" + mappingRule + "] collides with: "
                             + Arrays.toString(mrEndingInThisNode.toArray()));
                     insert = UserInputManager.requestMappingKeep(mappingRule);
                     if (insert)
                         mappingRule.setForceInsertion(true); // ask the user only once for each rule
-                    if (!insert && !UserInputManager.requestMappingKeep(mr)) //avoid asking to remove the ones already inserted if the user already removed the current
+                    if (insert && !UserInputManager.requestMappingKeep(mr)) //avoid asking to remove the ones already inserted if the user already removed the current
                         node.removeMappingRuleFromTree(mr);
                 }
             }
@@ -45,11 +45,4 @@ public class MappingRulesUtils {
         return true;
     }
 
-    private static boolean sameMethod(MappingRule mappingRule, List<MappingRule> mrEndingInThisNode) {
-        boolean same = false;
-        for (MappingRule mr : mrEndingInThisNode) {
-            same = same || mr.getMethod().equals(mappingRule.getMethod());
-        }
-        return same;
-    }
 }
