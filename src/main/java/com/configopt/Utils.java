@@ -11,6 +11,7 @@ import java.util.List;
 
 public class Utils {
     protected static Mode mode = Mode.SCAN;
+    protected static final String LOG_TAG = "CONFIGOPT_LOGS";
 
     public enum Mode {
         SCAN, FIXINTERACTIVE
