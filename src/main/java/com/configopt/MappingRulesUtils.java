@@ -11,7 +11,7 @@ import com.configopt.Utils.Mode;
 public class MappingRulesUtils {
 
     protected static List<CollisionIssue> issues = new ArrayList<>();
-    static Logger logger = Logger.getLogger(MappingRulesUtils.class.getName());
+    static Logger logger = Logger.getLogger(Utils.LOG_TAG);
 
     public static boolean validateInsertion(APIcast apicast, final PathNode node, final MappingRule mappingRule,
             final int index) {
