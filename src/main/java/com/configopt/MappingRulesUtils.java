@@ -13,41 +13,9 @@ public class MappingRulesUtils {
     protected static List<CollisionIssue> issues = new ArrayList<>();
     static Logger logger = Logger.getLogger(Utils.LOG_TAG);
 
-    public static boolean validateInsertion(APIcast apicast, final PathNode node, final MappingRule mappingRule,
-            final int index) {
+    public static boolean validateInsertion(APIcast apicast, final PathNode node, final MappingRule mappingRule) {
 
         boolean insert = true;
-
-        // if(hasDollarChild(node)){
-
-        // }
-
-        // if (index == mappingRule.getPath().length() - 1 && node.getData() == '$') {
-        // PathNode parent = node.getParent();
-        // parent.setIsLastBeforeDollar(true);
-        // List<MappingRule> optimizeableRules = new ArrayList<>();
-        // if (parent.getChildren().size() > 1) { // there are other mapping rules
-        // similar to this that could be
-        // // simplified
-        // parent.getChildren().forEach(child ->
-        // optimizeableRules.addAll(child.getRouteMappings()));
-        // ;
-        // optimizeableRules.remove(mappingRule);
-
-        // if (Utils.mode == Mode.SCAN) {
-        // issues.add(new CollisionIssue(optimizeableRules,
-        // "These rules could be optimized by removing the '$' from the first and
-        // deleting the others.",
-        // 5));
-        // } else if (Utils.mode == Mode.FIXINTERACTIVE) {
-        // logger.log(Level.INFO, "These rules could be optimized by removing the '$'
-        // from : [" + mappingRule + "] and then the following could be deleted: "
-        // + Arrays.toString(optimizeableRules.toArray()) );
-        // insert = UserInputManager.requestMappingOptimize(mappingRule);
-        // }
-        // }
-        // return insert;
-        // }
 
         List<MappingRule> mrEndingInThisNode = node.getMappingRulesEndingHere();
         if (mrEndingInThisNode.size() > 0) {
@@ -105,4 +73,27 @@ public class MappingRulesUtils {
     protected static MappingRule getShorter(MappingRule m1, MappingRule m2) {
         return m1.getPath().length() < m2.getPath().length() ? m1 : m2;
     }
+
+	public static PathPiece getNextPiece(MappingRule mappingRule, int index) {
+        String path = mappingRule.getPath().toString();
+        String nextPiece = path.substring(index, index+1);
+        if(path.charAt(index) == '{'){
+            for(int i = index; i < path.length(); i++){
+                if(path.charAt(i) == '/')
+                    break;
+                if(path.charAt(i) == '}')
+                    nextPiece = path.substring(index, i+1);
+            }
+        }
+        else if(index > 0 && path.charAt(index-1) == '/'){
+            String p = "";
+            for(int i = index; i < path.length() && path.charAt(i) != '/'; i++){
+                p += path.charAt(i);
+            }
+            nextPiece = p;
+        }
+        if(nextPiece.endsWith("$"))
+            nextPiece = nextPiece.substring(0, nextPiece.length()-1);
+        return new PathPiece(nextPiece);
+	}
 }

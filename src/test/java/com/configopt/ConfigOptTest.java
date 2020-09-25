@@ -18,6 +18,6 @@ public class ConfigOptTest
         PathNode node = new PathNode();
         MappingRule mappingRule = new MappingRule("GET", "/", 0l);
         node.insert(apicast, mappingRule, 0);
-        assertTrue(MappingRulesUtils.validateInsertion(apicast, node, mappingRule, 0));
+        assertTrue(MappingRulesUtils.validateInsertion(apicast, node, mappingRule));
     }
 }
