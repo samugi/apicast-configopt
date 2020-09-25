@@ -41,7 +41,7 @@ public class UserInputManager {
         if(!shorter.getPath().endsWith("$"))
             throw new IllegalArgumentException("optimizable not ending with $");
         System.out.println("These rules " + shorter.toString() + ", " + longer.toString()
-                + "could be optimized by removing the dollar from " + shorter + " and deleting " + longer
+                + " could be optimized by removing the dollar from " + shorter + " and deleting " + longer
                 + ". Would you like to proceed?  Y/N");
         final Scanner in = new Scanner(System.in);
         boolean optimize = false;
