@@ -1,8 +1,9 @@
 package com.configopt;
 
-import java.util.logging.Level;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -40,7 +41,7 @@ public class MappingRulesUtils {
                         if (optimize) {
                             if (mr.getPath().endsWith("$"))
                                 mr.setPath(new Path(mr.getPath().substring(0, mr.getPath().length() - 1))); // remove $
-                            insert = false; //stop inserting mappingRule (longer)
+                            insert = false; // stop inserting mappingRule (longer)
                         }
                         insert = true;
                     } else {
@@ -48,11 +49,17 @@ public class MappingRulesUtils {
                                 + Arrays.toString(mrEndingInThisNode.toArray()));
                         insert = UserInputManager.requestMappingKeep(mappingRule);
                     }
-                 //   if (insert && !checkOptimization(mr, mappingRule))
-                //        mappingRule.setForceInsertion(true); // ask the user only once for each rule
-                    if (insert  && !checkOptimization(mr, mappingRule) && !UserInputManager.requestMappingKeep(mr)) // avoid asking to remove the ones already
-                                                                            // inserted if the user already removed the
-                                                                            // current
+                    // if (insert && !checkOptimization(mr, mappingRule))
+                    // mappingRule.setForceInsertion(true); // ask the user only once for each rule
+                    if (insert && !checkOptimization(mr, mappingRule) && !UserInputManager.requestMappingKeep(mr)) // avoid
+                                                                                                                   // asking
+                                                                                                                   // to
+                                                                                                                   // remove
+                                                                                                                   // the
+                                                                                                                   // ones
+                                                                                                                   // already
+                        // inserted if the user already removed the
+                        // current
                         node.removeMappingRuleFromTree(mr);
                 }
             }
@@ -72,26 +79,55 @@ public class MappingRulesUtils {
         return m1.getPath().length() < m2.getPath().length() ? m1 : m2;
     }
 
-	public static PathPiece getNextPiece(MappingRule mappingRule, int index) {
+    public static PathPiece getNextPiece(MappingRule mappingRule, int index) {
         String path = mappingRule.getPath().toString();
-        String nextPiece = path.substring(index, index+1);
-        if(path.charAt(index) == '{'){
-            for(int i = index; i < path.length(); i++){
-                if(path.charAt(i) == '/')
-                    break;
-                if(path.charAt(i) == '}')
-                    nextPiece = path.substring(index, i+1);
-            }
+        if (index == path.length())
+            return new PathPiece("");
+        String nextPiece = path.substring(index, index + 1);
+        if (path.charAt(index) == '{') {
+            int nextDelimiter = MappingRulesUtils.nextCurlySlash(path, index);
+            if (nextDelimiter >= 0)
+                nextPiece = path.substring(index, nextDelimiter);
+        } else if (index > 0 && path.charAt(index - 1) == '/') {
+            int nextSlashQP$ = MappingRulesUtils.nextSlashQP$(path, index);
+            if (nextSlashQP$ >= 0)
+                nextPiece = path.substring(index, nextSlashQP$);
         }
-        else if(index > 0 && path.charAt(index-1) == '/'){
-            String p = "";
-            for(int i = index; i < path.length() && path.charAt(i) != '/'; i++){
-                p += path.charAt(i);
-            }
-            nextPiece = p;
-        }
-        if(nextPiece.endsWith("$"))
-            nextPiece = nextPiece.substring(0, nextPiece.length()-1);
+        if (nextPiece.endsWith("$"))
+            nextPiece = nextPiece.substring(0, nextPiece.length() - 1);
         return new PathPiece(nextPiece);
-	}
+    }
+
+    public static int nextCurlySlash(String path, int startIndex) {
+        int nextCurly = path.indexOf("}", startIndex);
+        int nextSlash = path.indexOf("/", startIndex);
+        List<Integer> ni = new ArrayList<>();
+        if (nextCurly > 0)
+            ni.add(nextCurly);
+        if (nextSlash > 0)
+            ni.add(nextSlash);
+        if (ni.isEmpty())
+            return -1;
+        Collections.sort(ni);
+        if (ni.get(0) == nextCurly)
+            return ni.get(0) + 1;
+        return ni.get(0);
+    }
+
+    public static int nextSlashQP$(String path, int startIndex) {
+        int nextQP = path.indexOf("?", startIndex);
+        int nextSlash = path.indexOf("/", startIndex);
+        int nextDollar = path.indexOf("$", startIndex);
+        List<Integer> ni = new ArrayList<>();
+        if (nextQP > 0)
+            ni.add(nextQP);
+        if (nextSlash > 0)
+            ni.add(nextSlash);
+        if (nextDollar > 0)
+            ni.add(nextDollar);
+        if (ni.isEmpty())
+            return -1;
+        Collections.sort(ni);
+        return ni.get(0);
+    }
 }
