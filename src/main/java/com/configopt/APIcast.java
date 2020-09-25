@@ -8,7 +8,15 @@ import java.util.Map;
 public class APIcast {
     private boolean pathRoutingEnabled = false;
     private boolean pathRoutingOnlyEnabled = false;
+    static APIcast apicast = null;
     List<Service> services = new ArrayList<>();
+
+
+    public static APIcast getAPIcast(){
+        if(apicast == null)
+            apicast = new APIcast();
+        return apicast;
+    }
 
     public void addService(Service service) {
         this.services.add(service);

@@ -8,6 +8,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Utils {
     protected static Mode mode = Mode.SCAN;
@@ -20,7 +22,7 @@ public class Utils {
     protected static JSONObject extractConfigJSONFromFile(String filePath) {
         JSONParser jsonParser = new JSONParser();
         JSONObject obj = null;
-        System.out.println("going to open: " + filePath);
+        Logger.getLogger(Utils.LOG_TAG).log(Level.INFO, "going to open: " + filePath);
         try (FileReader reader = new FileReader(filePath)) {
             obj = (JSONObject) jsonParser.parse(reader);
         } catch (FileNotFoundException e) {
@@ -63,10 +65,16 @@ public class Utils {
      *  The mapping rules partially match each others
      */
     public static int calculateSeverity(APIcast apicast, MappingRule mr, MappingRule mappingRule) {
-        int severity = 5;
-        if ((apicast.getPathRoutingEnabled() || apicast.getPathRoutingOnlyEnabled()) && mr.getServiceId() != mappingRule.getServiceId())
+        int severity = 2;
+        if(MappingRulesUtils.checkOptimization(mr, mappingRule))
+            severity = 5;
+        else if ((apicast.getPathRoutingEnabled() || apicast.getPathRoutingOnlyEnabled()) && mr.getServiceId() != mappingRule.getServiceId())
             severity = 1;
+        // else if(checkOptimization(mr, mappingRule))
+        //     severity = 5;
         return severity;
     }
+
+     
 
 }
