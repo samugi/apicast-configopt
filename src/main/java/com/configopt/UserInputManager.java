@@ -1,9 +1,15 @@
 package com.configopt;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 public class UserInputManager {
-    public static boolean requestMappingKeep(final MappingRule mappingRule) {
+    public static boolean requestMappingKeep(final MappingRule mappingRule, List<MappingRule> mrEndingInThisNode,
+            boolean ask) {
+        if (ask)
+            System.out.println(
+                    "This rule: [" + mappingRule + "] collides with: " + Arrays.toString(mrEndingInThisNode.toArray()));
         System.out.println("Would you like to keep " + mappingRule.toString() + "?  Y/N");
         final Scanner in = new Scanner(System.in);
         while (true) {
@@ -38,7 +44,7 @@ public class UserInputManager {
         MappingRule shorter = MappingRulesUtils.getShorter(m1, m2);
         MappingRule longer = shorter.matches(m1) ? m2 : m1;
 
-        if(!shorter.getPath().endsWith("$"))
+        if (!shorter.getPath().endsWith("$"))
             throw new IllegalArgumentException("optimizable not ending with $");
         System.out.println("These rules " + shorter.toString() + ", " + longer.toString()
                 + " could be optimized by removing the dollar from " + shorter + " and deleting " + longer
@@ -52,7 +58,7 @@ public class UserInputManager {
                 optimize = true;
                 break;
             } else if (response.equalsIgnoreCase("N")) {
-                
+
                 break;
             }
             System.out.println("Invalid response, would you like to proceed? Y/N");
