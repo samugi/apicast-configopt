@@ -2,7 +2,6 @@ package com.configopt;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
@@ -15,15 +14,13 @@ public class MappingRulesUtils {
     static Logger logger = Logger.getLogger(Utils.LOG_TAG);
 
     public static boolean validateInsertion(APIcast apicast, final PathNode node, final MappingRule mappingRule) {
-
         boolean insert = true;
-
         List<MappingRule> mrEndingInThisNode = node.getMappingRulesEndingHere();
+
         if (mrEndingInThisNode.size() > 0) {
             for (MappingRule mr : mrEndingInThisNode) {
-                if (!mr.getMethod().equals(mappingRule.getMethod())) // ignore if different methods
+                if (!mr.getMethod().equals(mappingRule.getMethod()))
                     return true;
-
                 if (Utils.mode == Mode.SCAN) {
                     int severity = Utils.calculateSeverity(apicast, mr, mappingRule);
                     if (mr.matches(mappingRule))
@@ -45,21 +42,9 @@ public class MappingRulesUtils {
                         }
                         insert = true;
                     } else {
-                        System.out.println("This rule: [" + mappingRule + "] collides with: "
-                                + Arrays.toString(mrEndingInThisNode.toArray()));
-                        insert = UserInputManager.requestMappingKeep(mappingRule);
+                        insert = UserInputManager.requestMappingKeep(mappingRule, mrEndingInThisNode, true); //collision
                     }
-                    // if (insert && !checkOptimization(mr, mappingRule))
-                    // mappingRule.setForceInsertion(true); // ask the user only once for each rule
-                    if (insert && !checkOptimization(mr, mappingRule) && !UserInputManager.requestMappingKeep(mr)) // avoid
-                                                                                                                   // asking
-                                                                                                                   // to
-                                                                                                                   // remove
-                                                                                                                   // the
-                                                                                                                   // ones
-                                                                                                                   // already
-                        // inserted if the user already removed the
-                        // current
+                    if (insert && !checkOptimization(mr, mappingRule) && !UserInputManager.requestMappingKeep(mr, mrEndingInThisNode, false)) //remove existing?
                         node.removeMappingRuleFromTree(mr);
                 }
             }
