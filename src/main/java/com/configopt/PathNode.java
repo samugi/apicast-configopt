@@ -56,7 +56,7 @@ public class PathNode {
     public void insert(APIcast apicast, MappingRule mappingRule, int index) {
         PathPiece tmpData = MappingRulesUtils.getNextPiece(mappingRule, index);
         if (this.getData() != null
-                && !this.getData().equals(tmpData) /* || (pathSoFar != null && !pathSoFar.equals(tmpPathSoFar)) */) {
+                && !tmpData.equalsExceptParameter(this.getData()) /* || (pathSoFar != null && !pathSoFar.equals(tmpPathSoFar)) */) {
             throw new IllegalArgumentException("can't insert value on node with different data");
         }
 
@@ -64,7 +64,8 @@ public class PathNode {
             return;
 
         this.routeMappings.add(mappingRule);
-        this.setData(tmpData);
+        if(!tmpData.isParameter())
+            this.setData(tmpData);
         int pathPieceLength = this.getData().toString().length();
         index += pathPieceLength -1;
         logger.log(Level.INFO, "set this node's data to: " + this.data);
@@ -72,7 +73,7 @@ public class PathNode {
         if (index < mappingRule.getPath().length() - 1 ) {
             boolean foundChild = false;
             for (PathNode child : this.children) {
-                if (child.getData().equals(MappingRulesUtils.getNextPiece(mappingRule, index+1))) {
+                if (MappingRulesUtils.getNextPiece(mappingRule, index+1).equalsExceptParameter(child.getData())) {
                     child.insert(apicast, mappingRule, index + 1);
                     foundChild = true;
                 }
@@ -102,7 +103,7 @@ public class PathNode {
             this.removeParent();
         if (index < mappingRule.getPath().length() - 1) {
             for (PathNode child : this.children) {
-                if (child.getData().equals(MappingRulesUtils.getNextPiece(mappingRule, index+1)))
+                if (MappingRulesUtils.getNextPiece(mappingRule, index+1).equalsExceptParameter(child.getData()))
                     child.remove(mappingRule, index + 1);
             }
         } else {
@@ -130,7 +131,7 @@ public class PathNode {
 
             for (PathNode child : children) {
                 PathPiece pp = MappingRulesUtils.getNextPiece(mappingRule, index+1);
-                if (child.getData().equals(pp)) {
+                if (pp.equalsExceptParameter(child.getData())) {
                     node = child;
                     index += pp.toString().length();
                     continue;

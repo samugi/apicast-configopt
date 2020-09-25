@@ -36,8 +36,6 @@ public class MappingRulesUtils {
                                 "one rule matches the other", severity));
                 } else if (Utils.mode == Mode.FIXINTERACTIVE) {
                     if (checkOptimization(mr, mappingRule)) {
-                        System.out.println("This rule: [" + mr + "] can be optimized by removing the '$'' and then deleting: "
-                                + Arrays.toString(mrEndingInThisNode.toArray()));
                         boolean optimize = UserInputManager.requestOptimization(mr, mappingRule);
                         if (optimize) {
                             if (mr.getPath().endsWith("$"))
@@ -66,8 +64,8 @@ public class MappingRulesUtils {
     protected static boolean checkOptimization(MappingRule m1, MappingRule m2) {
         MappingRule shorter = getShorter(m1, m2);
         MappingRule longer = shorter.matches(m1) ? m2 : m1;
-        return !m1.matches(m2) && (longer.getPath().startsWith(shorter.getPath()) && shorter.getPath().endsWith("$")
-                || (shorter.getPath().length() == longer.getPath().length() && longer.getPath().endsWith("$")));
+        return !m1.matches(m2) && (longer.getPath().startsWith(shorter.getPath()) && (shorter.getPath().endsWith("$")
+                || (shorter.getPath().length() == longer.getPath().length() && longer.getPath().endsWith("$"))));
     }
 
     protected static MappingRule getShorter(MappingRule m1, MappingRule m2) {
