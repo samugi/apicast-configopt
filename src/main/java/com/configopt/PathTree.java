@@ -9,4 +9,8 @@ public class PathTree{
             root = new PathNode();
         root.insert(apicast, mappingRule, 0);
     }
+
+    public PathNode getRoot(){
+        return this.root;
+    }
 }

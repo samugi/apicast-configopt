@@ -13,11 +13,7 @@ import java.util.logging.Logger;
  * routeMappings represents the list of mapping rules that the current node is
  * part of, for example:
  * 
- *     `a` 
- *     / \ 
- *   `b` `e` 
- *   / \ 
- * `c` `d`
+ * `a` / \ `b` `e` / \ `c` `d`
  * 
  * Node `a` would have routeMappings = ["abc", "abd", "ae"] Node `b` would have
  * routeMappings = ["abc", "abd"] Node `c` would have routeMappings = ["abc"]
@@ -28,11 +24,11 @@ import java.util.logging.Logger;
  * 
  */
 public class PathNode {
-    private List<PathNode> children = new ArrayList<>();//new CopyOnWriteArrayList<>();
+    private List<PathNode> children = new ArrayList<>();// new CopyOnWriteArrayList<>();
     private PathNode parent = null;
-    private List<MappingRule> routeMappings = new ArrayList<>(); //new CopyOnWriteArrayList<>();
-    private List<MappingRule> mappingRulesEndingHere = new ArrayList<>(); //new CopyOnWriteArrayList<>();
-    private String pathSoFar;
+    private List<MappingRule> routeMappings = new ArrayList<>(); // new CopyOnWriteArrayList<>();
+    private List<MappingRule> mappingRulesEndingHere = new ArrayList<>(); // new CopyOnWriteArrayList<>();
+    private boolean isLastBeforeDollar = false;
     private char data;
     Logger logger = Logger.getLogger(Utils.LOG_TAG);
 
@@ -59,21 +55,20 @@ public class PathNode {
      */
     public void insert(APIcast apicast, MappingRule mappingRule, int index) {
         char tmpData = mappingRule.getPath().charAt(index);
-        String tmpPathSoFar = mappingRule.getPath().substring(0, index + 1);
         if (this.data != '\u0000'
                 && this.data != tmpData /* || (pathSoFar != null && !pathSoFar.equals(tmpPathSoFar)) */) {
             throw new IllegalArgumentException("can't insert value on node with different data");
         }
 
-        if (!mappingRule.forceInsertion() && !MappingRulesUtils.validateInsertion(apicast, this, mappingRule, index))
+        if (!mappingRule.forceInsertion() && !MappingRulesUtils.validateInsertion(apicast, this, mappingRule, index) || mappingRule.getPath().length() < index)
             return;
 
         this.routeMappings.add(mappingRule);
-        this.pathSoFar = tmpPathSoFar;
         this.data = tmpData; // here this.data is either null or it has the same value of tmpData
+
         logger.log(Level.INFO, "set this node's data to: " + this.data);
         // from here we go on with the children
-        if (index < mappingRule.getPath().length() - 1) {
+        if (index < mappingRule.getPath().length() - 1 ) {
             boolean foundChild = false;
             for (PathNode child : this.children) {
                 if (child.getData() == mappingRule.getPath().charAt(index + 1)) {
@@ -88,7 +83,7 @@ public class PathNode {
             }
         } else {
             logger.log(Level.INFO, "Finished adding mapping rule: " + mappingRule.toString());
-            this.mappingRulesEndingHere.add(mappingRule);
+            this.addMappingRulesEndingHere(mappingRule);
         }
     }
 
@@ -125,7 +120,7 @@ public class PathNode {
      */
     public void remove(MappingRule mappingRule, int index) {
         PathNode node = this;
-        while (index < mappingRule.getPath().length() -1) {
+        while (index < mappingRule.getPath().length() - 1) {
             List<PathNode> children = node.getChildren();
 
             node.getRouteMappings().remove(mappingRule);
@@ -145,6 +140,14 @@ public class PathNode {
         this.mappingRulesEndingHere.remove(mappingRule); // useless
     }
 
+    public void setIsLastBeforeDollar(boolean isLastBeforeDollar) {
+        this.isLastBeforeDollar = true;
+    }
+
+    public boolean getIsLastBeforeDollar() {
+        return this.isLastBeforeDollar;
+    }
+
     public void setParent(PathNode parent) {
         this.parent = parent;
     }
@@ -161,6 +164,10 @@ public class PathNode {
 
     public char getData() {
         return this.data;
+    }
+
+    public PathNode getParent(){
+        return this.parent;
     }
 
     public void setData(char data) {
@@ -190,6 +197,10 @@ public class PathNode {
 
     public List<MappingRule> getMappingRulesEndingHere() {
         return this.mappingRulesEndingHere;
+    }
+
+    public void addMappingRulesEndingHere(MappingRule mr) {
+        this.mappingRulesEndingHere.add(mr);
     }
 
     public void removeMappingRuleFromTree(MappingRule mr) {

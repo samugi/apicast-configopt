@@ -1,5 +1,6 @@
 package com.configopt;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,7 +49,7 @@ public class ConfigOpt {
         String inputFilePath = cmd.getOptionValue("configuration");
         OutputUtils.outputFile = cmd.getOptionValue("output");
         JSONObject JSONConfig = Utils.extractConfigJSONFromFile(inputFilePath);
-        List<Service> services = Utils.createServicesFromJSONConfig(JSONConfig);
+   //     List<Service> services = Utils.createServicesFromJSONConfig(JSONConfig);
         if (cmd.hasOption(debugLogLevelOption.getOpt()))
             Logger.getLogger(Utils.LOG_TAG).setLevel(Level.ALL);
         else
@@ -57,22 +58,27 @@ public class ConfigOpt {
             Utils.mode = Mode.FIXINTERACTIVE;
         else
             Utils.mode = Mode.SCAN;
-        // Service service1 = new Service(12l, "example.org");
-        // service1.addProductMappingRule(new MappingRule("GET", "/foo/bar", 12l));
-        // service1.addProductMappingRule(new MappingRule("GET", "/foo/bar/test", 12l));
-        // service1.addProductMappingRule(new MappingRule("GET", "/whatever", 12l));
-        // service1.addProductMappingRule(new MappingRule("GET", "/fo", 12l));
+      
+        Service service1 = new Service(12l, "example.org");
+        service1.addProductMappingRule(new MappingRule("GET", "/foo/bar/{test}$", 12l));
+        service1.addProductMappingRule(new MappingRule("GET", "/foo/bar/{test}$", 12l));
+        service1.addProductMappingRule(new MappingRule("GET", "/open-banking/v3.0/aisp/accounts/{AccountId}$", 12l));
+        service1.addProductMappingRule(new MappingRule("GET", "/fo", 12l));
 
-        // Service service2 = new Service(12l, "example.org");
-        // service1.addProductMappingRule(new MappingRule("GET", "/foo/bar", 12l));
-        // service1.addProductMappingRule(new MappingRule("GET", "/foo/bar/test", 12l));
-        // service1.addProductMappingRule(new MappingRule("GET", "/whatever", 12l));
-        // service1.addProductMappingRule(new MappingRule("GET", "/fo", 12l));
-        // List<Service> services = new ArrayList<>();
-        // services.add(service1);
-        // services.add(service2);
+       // Service service2 = new Service(12l, "example.org");
+        service1.addProductMappingRule(new MappingRule("GET", "/foo/bar", 12l));
+        service1.addProductMappingRule(new MappingRule("GET", "/foo/bar/test", 12l));
+        service1.addProductMappingRule(new MappingRule("GET", "/whatever", 12l));
+        service1.addProductMappingRule(new MappingRule("GET", "/open-banking/v3.0/", 12l));
+        service1.addProductMappingRule(new MappingRule("GET", "/open-banking/v3.0/aisp/accounts/{AccountId}$", 12l));
+        service1.addProductMappingRule(new MappingRule("GET", "/open-banking/v3.0/aisp/accounts/{AccountId}$", 12l));
+   //     service1.addProductMappingRule(new MappingRule("GET", "/fo", 12l));
+        
+        List<Service> services = new ArrayList<>();
+        services.add(service1);
+    //    services.add(service2);
 
-        APIcast apicast = new APIcast();
+        APIcast apicast = APIcast.getAPIcast();
         apicast.setPathRoutingEnabled(true);
         for (Service service : services) {
             apicast.addService(service);

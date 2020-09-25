@@ -15,15 +15,16 @@ public class CollisionIssue implements Comparable {
     }
 
     private String getSeverityText() {
-        String severe = "[ SEVERE ]";
-        String minor =  "[ MINOR  ]";
+        String severe =   "[ SEVERE   ]";
+        String minor =    "[ MINOR    ]";
+        String optional = "[ OPTIONAL ]";
         switch (severity) {
             case 1:
                 return severe;
             case 2:
-                return severe;
-            case 3:
                 return minor;
+            case 5:
+                return optional;
             default:
                 return minor;
         }
