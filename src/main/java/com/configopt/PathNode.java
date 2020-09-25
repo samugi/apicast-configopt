@@ -66,7 +66,7 @@ public class PathNode {
         this.routeMappings.add(mappingRule);
         if(!tmpData.isParameter())
             this.setData(tmpData);
-        int pathPieceLength = this.getData().toString().length();
+        int pathPieceLength = tmpData.toString().length();
         index += pathPieceLength -1;
         logger.log(Level.INFO, "set this node's data to: " + this.data);
         // from here we go on with the children
@@ -97,20 +97,20 @@ public class PathNode {
      * @param index the index of the character that will be inserted in the current
      *              node
      */
-    public void removeRecursive(MappingRule mappingRule, int index) {
-        routeMappings.remove(mappingRule);
-        if (this.routeMappings.size() == 0 && !this.isRoot())
-            this.removeParent();
-        if (index < mappingRule.getPath().length() - 1) {
-            for (PathNode child : this.children) {
-                if (MappingRulesUtils.getNextPiece(mappingRule, index+1).equalsExceptParameter(child.getData()))
-                    child.remove(mappingRule, index + 1);
-            }
-        } else {
-            logger.log(Level.INFO, "Finished removing mapping rule: " + mappingRule.toString());
-            this.mappingRulesEndingHere.remove(mappingRule); // useless
-        }
-    }
+     // public void removeRecursive(MappingRule mappingRule, int index) {
+     //     routeMappings.remove(mappingRule);
+     //     if (this.routeMappings.size() == 0 && !this.isRoot())
+     //         this.removeParent();
+     //     if (index < mappingRule.getPath().length() - 1) {
+     //         for (PathNode child : this.children) {
+     //             if (MappingRulesUtils.getNextPiece(mappingRule, index+1).equalsExceptParameter(child.getData()))
+     //                 child.remove(mappingRule, index + 1);
+     //         }
+     //     } else {
+     //         logger.log(Level.INFO, "Finished removing mapping rule: " + mappingRule.toString());
+     //         this.mappingRulesEndingHere.remove(mappingRule); // useless
+     //     }
+     // }
 
     /**
      * Removes the characters in "path" starting from "index" from the current Node

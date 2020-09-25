@@ -16,7 +16,6 @@ public class UserInputManager {
             }
             System.out.println("Invalid response, would you like to keep " + mappingRule.toString() + "? Y/N");
         }
-
     }
 
     public static boolean requestMappingOptimize(MappingRule mappingRule) {
@@ -35,8 +34,9 @@ public class UserInputManager {
     }
 
     public static boolean requestOptimization(MappingRule m1, MappingRule m2) {
-        MappingRule longer = m1.getPath().length() > m2.getPath().length() ? m1 : m2;
-        MappingRule shorter = longer.matches(m1) ? m2 : m1;
+
+        MappingRule shorter = MappingRulesUtils.getShorter(m1, m2);
+        MappingRule longer = shorter.matches(m1) ? m2 : m1;
 
         if(!shorter.getPath().endsWith("$"))
             throw new IllegalArgumentException("optimizable not ending with $");
@@ -57,7 +57,6 @@ public class UserInputManager {
             }
             System.out.println("Invalid response, would you like to proceed? Y/N");
         }
-
         return optimize;
     }
 }
