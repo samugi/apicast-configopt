@@ -60,18 +60,18 @@ public class ConfigOpt {
             Utils.mode = Mode.SCAN;
       
         Service service1 = new Service(12l, "example.org");
-        service1.addProductMappingRule(new MappingRule("GET", "/foo/bar/{test}$", 12l));
-        service1.addProductMappingRule(new MappingRule("GET", "/foo/bar/{test}$", 12l));
-        service1.addProductMappingRule(new MappingRule("GET", "/open-banking/v3.0/aisp/accounts/{AccountId}$", 12l));
-        service1.addProductMappingRule(new MappingRule("GET", "/fo", 12l));
+        service1.addProductMappingRule(new MappingRule("GET", "/foo/{bar}/test$", 12l));
+        service1.addProductMappingRule(new MappingRule("GET", "/foo/bar/test$", 12l));
+     //   service1.addProductMappingRule(new MappingRule("GET", "/open-banking/v3.0/aisp/accounts/{AccountId}$", 12l));
+     //   service1.addProductMappingRule(new MappingRule("GET", "/fo", 12l));
 
        // Service service2 = new Service(12l, "example.org");
-        service1.addProductMappingRule(new MappingRule("GET", "/foo/bar", 12l));
-        service1.addProductMappingRule(new MappingRule("GET", "/foo/bar/test", 12l));
-        service1.addProductMappingRule(new MappingRule("GET", "/whatever", 12l));
-        service1.addProductMappingRule(new MappingRule("GET", "/open-banking/v3.0/", 12l));
-        service1.addProductMappingRule(new MappingRule("GET", "/open-banking/v3.0/aisp/accounts/{AccountId}$", 12l));
-        service1.addProductMappingRule(new MappingRule("GET", "/open-banking/v3.0/aisp/accounts/{AccountId}$", 12l));
+     //   service1.addProductMappingRule(new MappingRule("GET", "/foo/bar", 12l));
+     //   service1.addProductMappingRule(new MappingRule("GET", "/foo/bar/test", 12l));
+     //   service1.addProductMappingRule(new MappingRule("GET", "/whatever", 12l));
+     //   service1.addProductMappingRule(new MappingRule("GET", "/open-banking/v3.0/", 12l));
+     //   service1.addProductMappingRule(new MappingRule("GET", "/open-banking/v3.0/aisp/accounts/{AccountId}$", 12l));
+     //   service1.addProductMappingRule(new MappingRule("GET", "/open-banking/v3.0/aisp/accounts/{AccountId}$", 12l));
    //     service1.addProductMappingRule(new MappingRule("GET", "/fo", 12l));
         
         List<Service> services = new ArrayList<>();

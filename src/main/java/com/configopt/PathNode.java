@@ -29,19 +29,19 @@ public class PathNode {
     private List<MappingRule> routeMappings = new ArrayList<>(); // new CopyOnWriteArrayList<>();
     private List<MappingRule> mappingRulesEndingHere = new ArrayList<>(); // new CopyOnWriteArrayList<>();
     private boolean isLastBeforeDollar = false;
-    private char data;
+    private PathPiece data;
     Logger logger = Logger.getLogger(Utils.LOG_TAG);
 
     public PathNode() {
 
     }
 
-    public PathNode(char character) {
-        this.data = character;
+    public PathNode(PathPiece str) {
+        this.data = str;
     }
 
-    public PathNode(char character, PathNode parent) {
-        this.data = character;
+    public PathNode(PathPiece str, PathNode parent) {
+        this.data = str;
         this.parent = parent;
     }
 
@@ -54,24 +54,25 @@ public class PathNode {
      *              node
      */
     public void insert(APIcast apicast, MappingRule mappingRule, int index) {
-        char tmpData = mappingRule.getPath().charAt(index);
-        if (this.data != '\u0000'
-                && this.data != tmpData /* || (pathSoFar != null && !pathSoFar.equals(tmpPathSoFar)) */) {
+        PathPiece tmpData = MappingRulesUtils.getNextPiece(mappingRule, index);
+        if (this.getData() != null
+                && !this.getData().equals(tmpData) /* || (pathSoFar != null && !pathSoFar.equals(tmpPathSoFar)) */) {
             throw new IllegalArgumentException("can't insert value on node with different data");
         }
 
-        if (!mappingRule.forceInsertion() && !MappingRulesUtils.validateInsertion(apicast, this, mappingRule, index) || mappingRule.getPath().length() < index)
+        if (!mappingRule.forceInsertion() && !MappingRulesUtils.validateInsertion(apicast, this, mappingRule) || mappingRule.getPath().length() < index)
             return;
 
         this.routeMappings.add(mappingRule);
-        this.data = tmpData; // here this.data is either null or it has the same value of tmpData
-
+        this.setData(tmpData);
+        int pathPieceLength = this.getData().toString().length();
+        index += pathPieceLength -1;
         logger.log(Level.INFO, "set this node's data to: " + this.data);
         // from here we go on with the children
         if (index < mappingRule.getPath().length() - 1 ) {
             boolean foundChild = false;
             for (PathNode child : this.children) {
-                if (child.getData() == mappingRule.getPath().charAt(index + 1)) {
+                if (child.getData().equals(MappingRulesUtils.getNextPiece(mappingRule, index+1))) {
                     child.insert(apicast, mappingRule, index + 1);
                     foundChild = true;
                 }
@@ -101,7 +102,7 @@ public class PathNode {
             this.removeParent();
         if (index < mappingRule.getPath().length() - 1) {
             for (PathNode child : this.children) {
-                if (child.getData() == mappingRule.getPath().charAt(index + 1))
+                if (child.getData().equals(MappingRulesUtils.getNextPiece(mappingRule, index+1)))
                     child.remove(mappingRule, index + 1);
             }
         } else {
@@ -128,9 +129,10 @@ public class PathNode {
                 node.removeParent();
 
             for (PathNode child : children) {
-                if (child.getData() == mappingRule.getPath().charAt(index + 1)) {
+                PathPiece pp = MappingRulesUtils.getNextPiece(mappingRule, index+1);
+                if (child.getData().equals(pp)) {
                     node = child;
-                    index++;
+                    index += pp.toString().length();
                     continue;
                 }
             }
@@ -162,7 +164,7 @@ public class PathNode {
         this.children.remove(child);
     }
 
-    public char getData() {
+    public PathPiece getData() {
         return this.data;
     }
 
@@ -170,7 +172,7 @@ public class PathNode {
         return this.parent;
     }
 
-    public void setData(char data) {
+    public void setData(PathPiece data) {
         this.data = data;
     }
 
