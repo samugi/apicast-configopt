@@ -55,8 +55,8 @@ public class Utils {
     }
 
     private static void addMappingRuleFromJSONRuleToService(Service service, JSONObject JSONRule) {
-        service.addProductMappingRule(new MappingRule((String) JSONRule.get("http_method"),
-                (String) JSONRule.get("pattern"), service.getId()));
+        service.addProductMappingRule(new MappingRuleSM((String) JSONRule.get("http_method"),
+                (String) JSONRule.get("pattern"), service.getId(), (String) JSONRule.get("owner_type")));
     }
 
     /** Calculate severity of the mapping rules partial or full match assuming:
@@ -64,9 +64,9 @@ public class Utils {
      *  The services' hosts are colliding depending on the path routing rules (this is done in APIcast#createServiceGroups())
      *  The mapping rules partially match each others
      */
-    public static int calculateSeverity(APIcast apicast, MappingRule mr, MappingRule mappingRule) {
+    public static int calculateSeverity(APIcast apicast, MappingRuleSM mr, MappingRuleSM mappingRule) {
         int severity = 2;
-        if(MappingRulesUtils.checkOptimization(mr, mappingRule))
+        if(mr.canBeOptimized(mappingRule))
             severity = 5;
         else if ((apicast.getPathRoutingEnabled() || apicast.getPathRoutingOnlyEnabled()) && mr.getServiceId() != mappingRule.getServiceId())
             severity = 1;
