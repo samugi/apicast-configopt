@@ -39,12 +39,12 @@ public class UserInputManager {
     public static boolean requestOptimization(MappingRuleSM m1, MappingRuleSM m2) {
 
         MappingRuleSM shorter = MappingRulesUtils.getShorter(m1, m2);
-        MappingRuleSM longer = shorter.matches(m1) ? m2 : m1;
+        MappingRuleSM longer = shorter.equals(m1) ? m2 : m1;
 
         if (!shorter.getPath().endsWith("$"))
             throw new IllegalArgumentException("optimizable not ending with $");
         System.out.println("These rules " + shorter.toString() + ", " + longer.toString()
-                + " could be optimized by removing the dollar from " + shorter + " and deleting " + longer
+                + " could be optimized by removing the dollar from " + shorter + " (if it exists) and deleting " + longer
                 + ". Would you like to proceed?  Y/N");
         final Scanner in = new Scanner(System.in);
         boolean optimize = false;

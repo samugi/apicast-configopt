@@ -16,7 +16,7 @@ public class MappingRuleSM {
     private String owner;
     private boolean isExactMatch = false;
 
-    public MappingRuleSM(String rule, String method, Long serviceId, String owner)  {
+    public MappingRuleSM(String method, String rule, Long serviceId, String owner)  {
         this.method = method; this.serviceId = serviceId; this.owner = owner;
         this.queryPairs = new LinkedHashMap<String, String>();
         String query = getQuery(rule);
@@ -49,15 +49,28 @@ public class MappingRuleSM {
     }
 
     public boolean canBeOptimized(MappingRuleSM mr){
-        boolean matchingMethods = this.getMethod().equalsIgnoreCase(mr.getMethod());
-        boolean matchingQP = this.matchQP(mr);
-        boolean matchPath = this.matchPath(mr);
-        boolean identicalPaths = this.getPath().equals(mr.getPath()) && (this.isExactMatch == mr.isExactMatch());
-        boolean oneIsExact = this.isExactMatch || mr.isExactMatch;
-        return matchingMethods && matchingQP && matchPath && !identicalPaths && oneIsExact;
+        return this.matches(mr) && this.optimizationMatch(mr);
     }
 
-    public boolean matches(MappingRuleSM mr){
+    public int getPathSectionsLength(){
+        String[] mr1 = this.getPath().split("/");
+        if(mr1.length == 0)
+            return 0;
+        String lastSection = mr1[mr1.length-1];
+        return lastSection.length() + mr1.length - 1;
+    }
+
+    public boolean brutalMatch(MappingRuleSM mr){
+        return this.matches(mr) && !optimizationMatch(mr);
+    }
+
+    private boolean optimizationMatch(MappingRuleSM mr){
+        boolean shorterExactMatch = MappingRulesUtils.getShorter(this, mr).isExactMatch();
+        boolean samePathSectionsLengths = this.getPathSectionsLength() == mr.getPathSectionsLength();
+        return !samePathSectionsLengths && shorterExactMatch;
+    }
+
+    private boolean matches(MappingRuleSM mr){
         boolean matchingMethods = this.getMethod().equalsIgnoreCase(mr.getMethod());
         boolean matchingQP = this.matchQP(mr);
         boolean matchPath = this.matchPath(mr);
@@ -77,19 +90,28 @@ public class MappingRuleSM {
         String path2 = mr.getPath();
         if(path1.startsWith(path2) || path2.startsWith(path1))
             return true;
-        return this.matchWithParams(mr);
+        if(this.matchWithParams(mr))
+            return true;
+        
+        return false;
+    }
+
+    private boolean matchLastPartial(String last1, String last2){
+        return last1.startsWith(last2) || last2.startsWith(last1);
     }
 
     private boolean matchWithParams(MappingRuleSM mr){
         String[] mr1 = this.getPath().split("/");
-        String[] mr2 = this.getPath().split("/");
+        String[] mr2 = mr.getPath().split("/");
         if(mr1.length != mr2.length)
             return false;
-        for(int i = 0; i < mr1.length; i++){
+        for(int i = 0; i < mr1.length-1; i++){
             if(!mr1[i].equals(mr2[i]) && (!isParam(mr1[i]) && !isParam(mr2[i])))
                 return false;
         }
-        return true;
+        String last1 = mr1[mr1.length-1];
+        String last2 = mr2[mr1.length-1];
+        return matchLastPartial(last1, last2);
     }
 
     private static boolean isParam(String p){
@@ -113,7 +135,7 @@ public class MappingRuleSM {
     }
 
     public String getPath(){
-        return this.getPath();
+        return this.path;
     }
 
     public String getRealPath(){

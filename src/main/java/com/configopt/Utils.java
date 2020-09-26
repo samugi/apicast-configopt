@@ -74,7 +74,4 @@ public class Utils {
         //     severity = 5;
         return severity;
     }
-
-     
-
 }
