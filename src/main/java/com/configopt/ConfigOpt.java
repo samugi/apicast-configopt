@@ -1,6 +1,5 @@
 package com.configopt;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,12 +22,15 @@ public class ConfigOpt {
                 .build();
         Option interactiveModeOption = Option.builder("i").longOpt("interactive").required(false)
                 .desc("Enables interactive mode").build();
+        Option pathRoutingOption = Option.builder("pr").longOpt("pathrouting").required(false)
+                .desc("Runs in path routing mode. Use this is you have APICAST_PATH_ROUTING=true").build();
+        Option pathRoutingOnlyOption = Option.builder("pro").longOpt("pathroutingonly").required(false)
+                .desc("Runs in path routing only mode. Use this is you have APICAST_PATH_ROUTING_ONLY=true").build();
         Option helpOption = Option.builder("h").longOpt("help").required(false)
                 .desc("Show this help message").build();
 
-        // configurationOption.setRequired(true);
         options.addOption(configurationOption).addOption(outputFileOption).addOption(debugLogLevelOption)
-                .addOption(interactiveModeOption).addOption(helpOption);
+                .addOption(interactiveModeOption).addOption(helpOption).addOption(pathRoutingOption).addOption(pathRoutingOnlyOption);
 
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
@@ -41,7 +43,6 @@ public class ConfigOpt {
             formatter.printHelp(usageString, options);
             System.exit(1);
         }
-
         if(cmd.hasOption(helpOption.getOpt())){
             formatter.printHelp(usageString, options);
             System.exit(1);
@@ -58,6 +59,7 @@ public class ConfigOpt {
             Utils.mode = Mode.FIXINTERACTIVE;
         else
             Utils.mode = Mode.SCAN;
+        
       
         // Service service1 = new Service(12l, "example.org");
         // service1.addProductMappingRule(new MappingRuleSM("GET", "/foo/bar/test$", 12l, "proxy"));
@@ -80,7 +82,10 @@ public class ConfigOpt {
         // services.add(service2);
 
         APIcast apicast = APIcast.getAPIcast();
-        apicast.setPathRoutingEnabled(true);
+        if(cmd.hasOption(pathRoutingOption.getOpt()))
+            apicast.setPathRoutingEnabled(true);
+        if(cmd.hasOption(pathRoutingOnlyOption.getOpt()))
+            apicast.setPathRoutingOnlyEnabled(true);
         for (Service service : services) {
             apicast.addService(service);
         }

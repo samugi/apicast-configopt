@@ -95,11 +95,13 @@ public class APIcast {
             for (Service service : serviceGroup){
                 allRulesToVerify.addAll(service.getProductMappingRules());
             }
+            ProgressBar pb = new ProgressBar(allRulesToVerify.size());
             for (int i = 0; i < allRulesToVerify.size() -1; i++){
                 MappingRulesUtils.validateMappingRule(this, allRulesToVerify.get(i), allRulesToVerify, i+1);
+                pb.postProgress(i);
             }
         }
-
+        System.out.println("");
         switch (Utils.mode) {
             case FIXINTERACTIVE:
                 //generate output config here 
