@@ -22,7 +22,7 @@ public class Utils {
     protected static JSONObject extractConfigJSONFromFile(String filePath) {
         JSONParser jsonParser = new JSONParser();
         JSONObject obj = null;
-        Logger.getLogger(Utils.LOG_TAG).log(Level.INFO, "going to open: " + filePath);
+        Logger.getLogger(Utils.LOG_TAG).log(Level.INFO, "Reading from: " + filePath);
         try (FileReader reader = new FileReader(filePath)) {
             obj = (JSONObject) jsonParser.parse(reader);
         } catch (FileNotFoundException e) {
