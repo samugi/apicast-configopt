@@ -91,13 +91,12 @@ public class APIcast {
     public void validateAllServices() {
         List<List<Service>> serviceGroups = this.createServiceGroups();
         for (List<Service> serviceGroup : serviceGroups) {
-            //PathTree tree = new PathTree();
+            List<MappingRuleSM> allRulesToVerify = new ArrayList<>();
             for (Service service : serviceGroup){
-                List<MappingRuleSM> allRulesToVerify = service.getProductMappingRules();
-                for (int i = 0; i < allRulesToVerify.size() -1; i++){
-                    MappingRulesUtils.validateMappingRule(this, allRulesToVerify.get(i), allRulesToVerify, i+1);
-                    // tree.insertMappingRule(this, mappingRule);
-                }
+                allRulesToVerify.addAll(service.getProductMappingRules());
+            }
+            for (int i = 0; i < allRulesToVerify.size() -1; i++){
+                MappingRulesUtils.validateMappingRule(this, allRulesToVerify.get(i), allRulesToVerify, i+1);
             }
         }
 
