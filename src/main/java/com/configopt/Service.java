@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Service{
-    private final List<MappingRule> productMappingRules = new ArrayList<>();
+    private final List<MappingRuleSM> productMappingRules = new ArrayList<>();
     private String host;
     private Long id;
 
@@ -22,12 +22,12 @@ public class Service{
         return this.id;
     }
 
-    public void addProductMappingRule(MappingRule mappingRule){
+    public void addProductMappingRule(MappingRuleSM mappingRule){
         mappingRule.setHost(host);
         this.productMappingRules.add(mappingRule);
     }
 
-    public List<MappingRule> getProductMappingRules(){
+    public List<MappingRuleSM> getProductMappingRules(){
         return this.productMappingRules;
     }
 

@@ -2,6 +2,9 @@ package com.configopt;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.configopt.Utils.Mode;
 
 import org.junit.Test;
@@ -15,9 +18,11 @@ public class ConfigOptTest
         APIcast apicast = new APIcast();
         apicast.setPathRoutingEnabled(true);
         Utils.mode = Mode.SCAN;
-        PathNode node = new PathNode();
-        MappingRule mappingRule = new MappingRule("GET", "/", 0l);
-        node.insert(apicast, mappingRule, 0);
-        assertTrue(MappingRulesUtils.validateInsertion(apicast, node, mappingRule));
+        MappingRuleSM mappingRule = new MappingRuleSM("GET", "/", 0l, "proxy");
+        MappingRuleSM mappingRule2 = new MappingRuleSM("GET", "/foo", 0l, "proxy");
+        MappingRuleSM mappingRule3 = new MappingRuleSM("GET", "/bar", 0l, "proxy");
+        List<MappingRuleSM> allRules = new ArrayList<>();
+        allRules.add(mappingRule2); allRules.add(mappingRule3);
+        MappingRulesUtils.validateMappingRule(apicast, mappingRule, allRules, 1);
     }
 }

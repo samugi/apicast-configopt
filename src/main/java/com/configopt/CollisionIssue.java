@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CollisionIssue implements Comparable {
-    List<MappingRule> rules = new ArrayList<>();
+    List<MappingRuleSM> rules = new ArrayList<>();
     String problemDescription;
     int severity;
 
-    public CollisionIssue(List<MappingRule> rules, String problem, int severity) {
+    public CollisionIssue(List<MappingRuleSM> rules, String problem, int severity) {
         this.rules = rules;
         this.problemDescription = problem;
         this.severity = severity;
