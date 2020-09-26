@@ -56,8 +56,15 @@ public class MappingRuleSM {
         String[] mr1 = this.getPath().split("/");
         if(mr1.length == 0)
             return 0;
+        return mr1.length;
+    }
+
+    public int getLastSectionLength(){
+        String[] mr1 = this.getPath().split("/");
+        if(mr1.length == 0)
+            return 0;
         String lastSection = mr1[mr1.length-1];
-        return lastSection.length() + mr1.length - 1;
+        return lastSection.length();
     }
 
     public boolean brutalMatch(MappingRuleSM mr){
@@ -66,8 +73,8 @@ public class MappingRuleSM {
 
     private boolean optimizationMatch(MappingRuleSM mr){
         boolean shorterExactMatch = MappingRulesUtils.getShorter(this, mr).isExactMatch();
-        boolean samePathSectionsLengths = this.getPathSectionsLength() == mr.getPathSectionsLength();
-        return !samePathSectionsLengths && shorterExactMatch;
+        boolean sameSectionsLengths = this.getPathSectionsLength() == mr.getPathSectionsLength() && this.getLastSectionLength() == mr.getLastSectionLength();
+        return !sameSectionsLengths && shorterExactMatch;
     }
 
     private boolean matches(MappingRuleSM mr){
