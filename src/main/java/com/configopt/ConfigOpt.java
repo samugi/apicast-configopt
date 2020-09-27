@@ -1,5 +1,6 @@
 package com.configopt;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -49,6 +50,7 @@ public class ConfigOpt {
         }
         String inputFilePath = cmd.getOptionValue("configuration");
         OutputUtils.outputFile = cmd.getOptionValue("output");
+        
         JSONObject JSONConfig = Utils.extractConfigJSONFromFile(inputFilePath);
         List<Service> services = Utils.createServicesFromJSONConfig(JSONConfig);
         if (cmd.hasOption(debugLogLevelOption.getOpt()))
@@ -59,23 +61,24 @@ public class ConfigOpt {
             Utils.mode = Mode.FIXINTERACTIVE;
         else
             Utils.mode = Mode.SCAN;
-        
+        if(OutputUtils.outputFile == null && Utils.mode == Mode.FIXINTERACTIVE)
+            Logger.getLogger(Utils.LOG_TAG).log(Level.SEVERE, "No output file provided with fix-interactive mdoe enabled: will not print output configuration.");
       
         // Service service1 = new Service(12l, "example.org");
-        // service1.addProductMappingRule(new MappingRuleSM("GET", "/foo/bar/test$", 12l, "proxy"));
-        // service1.addProductMappingRule(new MappingRuleSM("GET", "/foo/{bar}/test$", 12l, "proxy"));
-        // service1.addProductMappingRule(new MappingRuleSM("GET", "/foo/bar/test$", 12l, "proxy"));
-        // service1.addProductMappingRule(new MappingRuleSM("GET", "/test-tttt/v3.0/andf/accounts/{AccountId}$", 12l, null));
-        // service1.addProductMappingRule(new MappingRuleSM("GET", "/fo", 12l, null));
+        // service1.addProductMappingRule(new MappingRuleSM("GET", "/foo/bar/test$", 12l, "proxy", 10l));
+        // service1.addProductMappingRule(new MappingRuleSM("GET", "/foo/{bar}/test$", 12l, "proxy", 11l));
+        // service1.addProductMappingRule(new MappingRuleSM("GET", "/foo/bar/test$", 12l, "proxy", 12l));
+        // service1.addProductMappingRule(new MappingRuleSM("GET", "/test-tttt/v3.0/andf/accounts/{AccountId}$", 12l, null, 13l));
+        // service1.addProductMappingRule(new MappingRuleSM("GET", "/fo", 12l, null, 14l));
 
         // Service service2 = new Service(13l, "example.org");
-        // service2.addProductMappingRule(new MappingRuleSM("GET", "/foo/bar", 13l, null));
-        // service2.addProductMappingRule(new MappingRuleSM("GET", "/foo/bar/test", 13l, null));
-        // service2.addProductMappingRule(new MappingRuleSM("GET", "/whatever", 13l, null));
-        // service2.addProductMappingRule(new MappingRuleSM("GET", "/open-banking/v3.0/$", 13l, null));
-        // service2.addProductMappingRule(new MappingRuleSM("GET", "/test-tttt/v3.0/andf/accounts/{AccountId}$", 13l, null));
-        // service2.addProductMappingRule(new MappingRuleSM("GET", "/test-tttt/v3.0/andf/accounts/{AccountId}$", 13l, null));
-        // service2.addProductMappingRule(new MappingRuleSM("GET", "/fo", 13l, null));
+        // service2.addProductMappingRule(new MappingRuleSM("GET", "/foo/bar", 13l, null, 15l ));
+        // service2.addProductMappingRule(new MappingRuleSM("GET", "/foo/bar/test", 13l, null, 16l ));
+        // service2.addProductMappingRule(new MappingRuleSM("GET", "/whatever", 13l, null,17l));
+        // service2.addProductMappingRule(new MappingRuleSM("GET", "/test-tttt/v3.0/$", 13l, null,18l));
+        // service2.addProductMappingRule(new MappingRuleSM("GET", "/test-tttt/v3.0/andf/accounts/{AccountId}$", 13l, null,19l));
+        // service2.addProductMappingRule(new MappingRuleSM("GET", "/test-tttt/v3.0/andf/accounts/{AccountId}$", 13l, null,20l));
+        // service2.addProductMappingRule(new MappingRuleSM("GET", "/fo", 13l, null,21l));
         
         // List<Service> services = new ArrayList<>();
         // services.add(service1);
@@ -90,5 +93,9 @@ public class ConfigOpt {
             apicast.addService(service);
         }
         apicast.validateAllServices();
+
+        if(Utils.mode == Mode.FIXINTERACTIVE){
+            OutputUtils.rewriteConfig(apicast, JSONConfig);
+        }
     }
 }

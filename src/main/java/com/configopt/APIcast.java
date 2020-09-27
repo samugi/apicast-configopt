@@ -10,6 +10,7 @@ public class APIcast {
     private boolean pathRoutingOnlyEnabled = false;
     static APIcast apicast = null;
     List<Service> services = new ArrayList<>();
+    private List<CollisionIssue> issues = new ArrayList<>();
 
 
     public static APIcast getAPIcast(){
@@ -95,7 +96,7 @@ public class APIcast {
             for (Service service : serviceGroup){
                 allRulesToVerify.addAll(service.getProductMappingRules());
             }
-            ProgressBar pb = new ProgressBar(allRulesToVerify.size());
+            ConfigOptProgressBar pb = new ConfigOptProgressBar(allRulesToVerify.size());
             for (int i = 0; i < allRulesToVerify.size() -1; i++){
                 MappingRulesUtils.validateMappingRule(this, allRulesToVerify.get(i), allRulesToVerify, i+1);
                 pb.postProgress(i);
@@ -107,8 +108,12 @@ public class APIcast {
                 //generate output config here 
                 break;
             case SCAN:
-                OutputUtils.printIssues(MappingRulesUtils.issues);
+                OutputUtils.printIssues(issues);
                 break;
         }
     }
+
+	public void addIssue(CollisionIssue collisionIssue) {
+        this.issues.add(collisionIssue);
+	}
 }

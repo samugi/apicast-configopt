@@ -1,11 +1,11 @@
 package com.configopt;
 
-public class ProgressBar{
+public class ConfigOptProgressBar{
     private int total;
     private int current;
     private final static int TOTAL_CHARS = 60;
 
-    public ProgressBar(int total){
+    public ConfigOptProgressBar(int total){
         this.total = total;
     }
 

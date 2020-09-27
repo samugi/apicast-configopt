@@ -18,9 +18,9 @@ public class ConfigOptTest
         APIcast apicast = new APIcast();
         apicast.setPathRoutingEnabled(true);
         Utils.mode = Mode.SCAN;
-        MappingRuleSM mappingRule = new MappingRuleSM("GET", "/", 0l, "proxy");
-        MappingRuleSM mappingRule2 = new MappingRuleSM("GET", "/foo", 0l, "proxy");
-        MappingRuleSM mappingRule3 = new MappingRuleSM("GET", "/bar", 0l, "proxy");
+        MappingRuleSM mappingRule = new MappingRuleSM("GET", "/", 0l, "proxy", 1l);
+        MappingRuleSM mappingRule2 = new MappingRuleSM("GET", "/foo", 0l, "proxy", 2l);
+        MappingRuleSM mappingRule3 = new MappingRuleSM("GET", "/bar", 0l, "proxy", 3l);
         List<MappingRuleSM> allRules = new ArrayList<>();
         allRules.add(mappingRule2); allRules.add(mappingRule3);
         MappingRulesUtils.validateMappingRule(apicast, mappingRule, allRules, 1);
