@@ -2,7 +2,7 @@
 configopt for APIcast helps in the process of troubleshooting and optimising the [APIcast](https://github.com/3scale/apicast) configuration.
 
 ## Install
-`git clone https://github.com/samugi/3scale-AccessTokenRevoker.git`  
+`git clone https://github.com/samugi/apicast-configopt.git`  
 ` ./mvnw clean compile assembly:single`  
 
 ## Start
