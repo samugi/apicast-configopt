@@ -6,5 +6,5 @@ configopt for APIcast helps in the process of troubleshooting and optimising the
 ` ./mvnw clean compile assembly:single`  
 
 ## Start
-`cd` into the *apicast-configopt/* repository.  
+`cd` into the *apicast-configopt/* folder  
 `java -cp target/configopt-1.0-jar-with-dependencies.jar com.configopt.ConfigOpt --help`
