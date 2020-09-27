@@ -10,7 +10,6 @@ import com.configopt.Utils.Mode;
 
 public class MappingRulesUtils {
 
-    protected static List<CollisionIssue> issues = new ArrayList<>();
     static Logger logger = Logger.getLogger(Utils.LOG_TAG);
 
     protected static MappingRuleSM getShorter(MappingRuleSM m1, MappingRuleSM m2) {
@@ -24,29 +23,30 @@ public class MappingRulesUtils {
             int severity = Utils.calculateSeverity(apicast, mappingRule, currentRule);
             if (Utils.mode == Mode.SCAN) {
                 if (mappingRule.brutalMatch(currentRule))
-                    issues.add(new CollisionIssue(new ArrayList<MappingRuleSM>(Arrays.asList(mappingRule, currentRule)),
+                    apicast.addIssue(new CollisionIssue(new ArrayList<MappingRuleSM>(Arrays.asList(mappingRule, currentRule)),
                             "one rule matches the other", severity));
                 else if (mappingRule.canBeOptimized(currentRule))
-                    issues.add(new CollisionIssue(new ArrayList<MappingRuleSM>(Arrays.asList(mappingRule, currentRule)),
+                    apicast.addIssue(new CollisionIssue(new ArrayList<MappingRuleSM>(Arrays.asList(mappingRule, currentRule)),
                             "rules could be optimized", severity));
             } else if (Utils.mode == Mode.FIXINTERACTIVE) {
                 if (mappingRule.brutalMatch(currentRule)) {
                     boolean keep = UserInputManager.requestMappingKeep(mappingRule, currentRule, true);
-                    if(!keep)
+                    if (!keep)
                         mappingRule.setMarkedForDeletion(true);
-                    else{
+                    else {
                         boolean keep2 = UserInputManager.requestMappingKeep(currentRule, mappingRule, false);
-                        if(!keep2)
+                        if (!keep2)
                             currentRule.setMarkedForDeletion(true);
                     }
                 } else if (mappingRule.canBeOptimized(currentRule)) {
                     boolean optimize = UserInputManager.requestOptimization(currentRule, mappingRule);
                     MappingRuleSM shorter = getShorter(currentRule, mappingRule);
                     MappingRuleSM longer = shorter.equals(currentRule) ? mappingRule : currentRule;
-                    if (optimize)
+                    if (optimize) {
                         if (shorter.isExactMatch())
                             shorter.setExactMatch(false);
-                    longer.setMarkedForDeletion(true);
+                        longer.setMarkedForDeletion(true);
+                    }
                 }
             }
 

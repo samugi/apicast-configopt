@@ -41,7 +41,7 @@ public class UserInputManager {
         MappingRuleSM shorter = MappingRulesUtils.getShorter(m1, m2);
         MappingRuleSM longer = shorter.equals(m1) ? m2 : m1;
 
-        if (!shorter.getPath().endsWith("$"))
+        if (!shorter.isExactMatch())
             throw new IllegalArgumentException("optimizable not ending with $");
         System.out.println("These rules " + shorter.toString() + ", " + longer.toString()
                 + " could be optimized by removing the dollar from " + shorter + " (if it exists) and deleting " + longer

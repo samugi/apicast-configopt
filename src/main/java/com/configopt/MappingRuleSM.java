@@ -6,17 +6,21 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class MappingRuleSM {
-    private String path;
-    private Map<String, String> queryPairs;
+public class MappingRuleSM  {
     private String method;
-    private String serviceHost;
+    private String originalRule;
+    private Long id;
     private Long serviceId;
-    private boolean markedForDeletion = false;
     private String owner;
-    private boolean isExactMatch = false;
+    private Map<String, String> queryPairs;
+    private String path;
+    private boolean isExactMatch;
+    private boolean markedForDeletion = false;
+    private String serviceHost;
 
-    public MappingRuleSM(String method, String rule, Long serviceId, String owner)  {
+    public MappingRuleSM(String method, String rule, Long serviceId, String owner, Long id)  {
+        this.originalRule = rule;
+        this.id = id;
         this.method = method; this.serviceId = serviceId; this.owner = owner;
         this.queryPairs = new LinkedHashMap<String, String>();
         String query = getQuery(rule);
@@ -125,56 +129,89 @@ public class MappingRuleSM {
         return p.startsWith("{") && p.endsWith("}");
     }
 
-    public String getMethod(){
-        return this.method;
+    public void setHost(String serviceHost){
+        this.serviceHost = serviceHost;
     }
 
-    public Long getServiceId(){
-        return this.serviceId;
-    }
+    public void setMarkedForDeletion(boolean markedForDeletion) {
+        this.markedForDeletion = markedForDeletion;
+        //this.newMappingRule.setMarkedForDeletion(markedForDeletion);;
+	}
 
-    public boolean getMarkedForDeletion(){
-        return this.markedForDeletion;
-    }
-
-    public void setMarkedForDeletion(boolean m){
-        this.markedForDeletion = m;
-    }
-
-    public String getPath(){
-        return this.path;
+    public void setExactMatch(boolean isExactMatch) {
+		this.isExactMatch = isExactMatch;
     }
 
     public String getRealPath(){
         return this.isExactMatch() ? this.path+"$" : this.path;
     }
-
-    public String getOwner(){
-        return this.owner;
-    }
-
-    public String getHost(){
-        return this.serviceHost;
-    }
-
-    public void setHost(String serviceHost){
-        this.serviceHost = serviceHost;
-    }
-
-    public boolean isExactMatch(){
-        return this.isExactMatch;
-    }
-
-    public void setExactMatch(boolean b){
-        this.isExactMatch = b;
-    }
-
-    public Map<String, String> getQP(){
-        return this.queryPairs;
-    }
-
+    
     @Override
     public String toString(){
         return this.method + " " + this.getRealPath() + " - Service ID: " + this.serviceId + " Host: " + serviceHost;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+    public String getOriginalRule() {
+        return originalRule;
+    }
+
+    public void setOriginalRule(String originalRule) {
+        this.originalRule = originalRule;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(Long serviceId) {
+        this.serviceId = serviceId;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public Map<String, String> getQP() {
+        return queryPairs;
+    }
+
+    public void setQueryPairs(Map<String, String> queryPairs) {
+        this.queryPairs = queryPairs;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public boolean isExactMatch() {
+        return isExactMatch;
+    }
+
+    public boolean isMarkedForDeletion() {
+        return markedForDeletion;
     }
 }
