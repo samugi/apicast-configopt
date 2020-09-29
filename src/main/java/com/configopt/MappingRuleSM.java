@@ -129,8 +129,12 @@ public class MappingRuleSM  {
         return p.startsWith("{") && p.endsWith("}");
     }
 
-    public void setHost(String serviceHost){
+    public void setServiceHost(String serviceHost){
         this.serviceHost = serviceHost;
+    }
+
+    public String getServiceHost(){
+        return this.serviceHost;
     }
 
     public void setMarkedForDeletion(boolean markedForDeletion) {

@@ -23,7 +23,7 @@ public class Service{
     }
 
     public void addProductMappingRule(MappingRuleSM mappingRule){
-        mappingRule.setHost(host);
+        mappingRule.setServiceHost(host);
         this.productMappingRules.add(mappingRule);
     }
 

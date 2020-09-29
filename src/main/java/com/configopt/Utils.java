@@ -80,7 +80,7 @@ public class Utils {
         int severity = 2;
         if (mr.canBeOptimized(mappingRule))
             severity = 5;
-        else if ((apicast.getPathRoutingEnabled() || apicast.getPathRoutingOnlyEnabled())
+        else if ((mappingRule.getServiceHost().equals(mr.getServiceHost()) || apicast.getPathRoutingOnlyEnabled())
                 && mr.getServiceId() != mappingRule.getServiceId())
             severity = 1;
         // else if(checkOptimization(mr, mappingRule))

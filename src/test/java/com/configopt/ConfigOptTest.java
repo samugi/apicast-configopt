@@ -16,7 +16,6 @@ public class ConfigOptTest
     public void alwaysReturnTrueInScanMode()
     {
         APIcast apicast = new APIcast();
-        apicast.setPathRoutingEnabled(true);
         Utils.mode = Mode.SCAN;
         MappingRuleSM mappingRule = new MappingRuleSM("GET", "/", 0l, "proxy", 1l);
         MappingRuleSM mappingRule2 = new MappingRuleSM("GET", "/foo", 0l, "proxy", 2l);

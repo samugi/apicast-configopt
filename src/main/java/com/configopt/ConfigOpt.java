@@ -23,15 +23,13 @@ public class ConfigOpt {
                 .build();
         Option interactiveModeOption = Option.builder("i").longOpt("interactive").required(false)
                 .desc("Enables interactive mode").build();
-        Option pathRoutingOption = Option.builder("pr").longOpt("pathrouting").required(false)
-                .desc("Runs in path routing mode. Use this is you have APICAST_PATH_ROUTING=true").build();
         Option pathRoutingOnlyOption = Option.builder("pro").longOpt("pathroutingonly").required(false)
                 .desc("Runs in path routing only mode. Use this is you have APICAST_PATH_ROUTING_ONLY=true").build();
         Option helpOption = Option.builder("h").longOpt("help").required(false)
                 .desc("Show this help message").build();
 
         options.addOption(configurationOption).addOption(outputFileOption).addOption(debugLogLevelOption)
-                .addOption(interactiveModeOption).addOption(helpOption).addOption(pathRoutingOption).addOption(pathRoutingOnlyOption);
+                .addOption(interactiveModeOption).addOption(helpOption).addOption(pathRoutingOnlyOption);
 
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
@@ -85,8 +83,8 @@ public class ConfigOpt {
         // services.add(service2);
 
         APIcast apicast = APIcast.getAPIcast();
-        if(cmd.hasOption(pathRoutingOption.getOpt()))
-            apicast.setPathRoutingEnabled(true);
+    //  if(cmd.hasOption(pathRoutingOption.getOpt()))
+    //    apicast.setPathRoutingEnabled(true);
         if(cmd.hasOption(pathRoutingOnlyOption.getOpt()))
             apicast.setPathRoutingOnlyEnabled(true);
         for (Service service : services) {
