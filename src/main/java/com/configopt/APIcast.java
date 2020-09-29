@@ -27,10 +27,12 @@ public class APIcast {
         return this.services;
     }
 
+    @Deprecated
     public void setPathRoutingEnabled(boolean pathRoutingEnabled) {
         this.pathRoutingEnabled = pathRoutingEnabled;
     }
 
+    @Deprecated
     public boolean getPathRoutingEnabled() {
         return this.pathRoutingEnabled;
     }
@@ -57,7 +59,7 @@ public class APIcast {
         /** the variable we will return */
         List<List<Service>> serviceGroups = new ArrayList<>();
 
-        if (pathRoutingEnabled && !pathRoutingOnlyEnabled) {
+        if (!pathRoutingOnlyEnabled) {
             for (Service service : services) {
                 List<Service> value = serviceGroupsMap.get(service.getHost());
                 if (value != null)
