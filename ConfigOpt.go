@@ -21,10 +21,6 @@ func printUsage() {
 	fmt.Println(USAGE)
 }
 
-func vals() (int, int) {
-	return 3, 7
-}
-
 func getParameterValue(slice []string, parameter string) string {
 	for index, par := range slice {
 		if s.Contains(par, parameter) {
