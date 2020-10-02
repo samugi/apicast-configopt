@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	s "strings"
 )
 
 const USAGE string = "usage: go run ConfigOpt.go [options...] --configuration <arg>"
@@ -13,9 +14,29 @@ func main() {
 		printUsage()
 	}
 
-	fmt.Println("Hello World")
+	fmt.Println(getParameterValue(args, "--configuration"))
 }
 
 func printUsage() {
 	fmt.Println(USAGE)
+}
+
+func vals() (int, int) {
+	return 3, 7
+}
+
+//s.Split(par, "=")[1]
+
+func getParameterValue(slice []string, parameter string) string {
+	for index, par := range slice {
+		if s.Contains(par, parameter) {
+			if len(s.Split(par, "=")) > 1 {
+				return s.Split(par, "=")[1]
+			}
+			if index+1 < len(slice) {
+				return slice[index+1]
+			}
+		}
+	}
+	return ""
 }
