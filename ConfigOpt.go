@@ -25,8 +25,6 @@ func vals() (int, int) {
 	return 3, 7
 }
 
-//s.Split(par, "=")[1]
-
 func getParameterValue(slice []string, parameter string) string {
 	for index, par := range slice {
 		if s.Contains(par, parameter) {
