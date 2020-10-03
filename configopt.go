@@ -2,6 +2,7 @@ package main
 
 import (
 	"configopt/clargs"
+	"configopt/configUtils"
 	"configopt/option"
 	"configopt/output"
 	"fmt"
@@ -28,6 +29,37 @@ func main() {
 	inputFilePath := optionConfig.Value()
 	output.OutputFile = optionOutput.Value()
 
-	fmt.Println(inputFilePath + output.OutputFile)
+	JSONConfig := configUtils.ExtractConfigJSONFromFile(inputFilePath)
+
+	proxy_configs := JSONConfig["proxy_configs"]
+
+	for _, result := range proxy_configs {
+
+		proxy_config := result["proxy_config"].(map[string]interface{})
+		content := proxy_config["content"].(map[string]interface{})
+		proxy := content["proxy"].(map[string]interface{})
+
+		proxy_rules_arr := proxy["proxy_rules"].([]interface{})
+		for k, r := range proxy_rules_arr {
+			//	id := r["id"]
+			mr := r.(map[string]interface{}) //FIXME boh
+			fmt.Sprint(k)
+			fmt.Sprint(r)
+			fmt.Sprint(mr)
+			//	fmt.Sprint(id)
+
+		}
+
+		//		for keypr, resultpr := range proxy_rules {
+		//			id := resultpr["id"].(string)
+		// http_method := resultpr["http_method"].(string)
+		// pattern := resultpr["pattern"].(string)
+		// owner_id := resultpr["owner_id"].(string)
+		// proxy_id := resultpr["proxy_id"].(string)
+		// fmt.Println("mapping rule: " + id + http_method + pattern + owner_id + proxy_id)
+		// fmt.Sprint(keypr)
+		//	}
+	}
+
 	clargs.PrintValues(options)
 }
