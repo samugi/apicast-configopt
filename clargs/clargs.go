@@ -3,10 +3,11 @@ package clargs
 import (
 	"configopt/option"
 	"fmt"
+	"strconv"
 	s "strings"
 )
 
-func GetUsageOptions(options []option.Option) string {
+func GetUsageOptions(options []*option.Option) string {
 	retStr := "\n\nOptions\n"
 	for _, opt := range options {
 		optStr := opt.ShortOption + ", " + opt.LongOption
@@ -20,23 +21,23 @@ func GetUsageOptions(options []option.Option) string {
 	return retStr
 }
 
-func PrintValues(options []option.Option) {
+func PrintValues(options []*option.Option) {
 	for _, opt := range options {
-		fmt.Println("Option: " + opt.LongOption + ", Value: " + opt.Value())
+		fmt.Println("Option: " + opt.LongOption + ", Value: " + opt.Value() + ", ValueB: " + strconv.FormatBool(opt.ValueB()))
 	}
 }
 
-func CheckArgs(args []string, options []option.Option, usage string) {
+func CheckArgs(args []string, options []*option.Option, usage string) {
 	if len(args) == 0 {
 		printUsage(usage)
 		return
 	}
 	for i, o := range options {
+		parameterValue := getParameterValue(args, o.ShortOption)
+		if parameterValue == "" {
+			parameterValue = getParameterValue(args, o.LongOption)
+		}
 		if o.Required {
-			parameterValue := getParameterValue(args, o.ShortOption)
-			if parameterValue == "" {
-				parameterValue = getParameterValue(args, o.LongOption)
-			}
 			if o.HasArgs && parameterValue == "" {
 				printUsage(usage)
 				return
@@ -45,9 +46,9 @@ func CheckArgs(args []string, options []option.Option, usage string) {
 				printUsage(usage)
 				return
 			}
-			options[i].SetValue(parameterValue)
-			fmt.Println("setting value: " + parameterValue)
 		}
+		options[i].SetValue(parameterValue)
+		options[i].SetValueB(findOptionInArgs(o, args))
 	}
 }
 
@@ -69,7 +70,7 @@ func getParameterValue(slice []string, parameter string) string {
 	return ""
 }
 
-func findOptionInArgs(opt option.Option, parameters []string) bool {
+func findOptionInArgs(opt *option.Option, parameters []string) bool {
 	for _, par := range parameters {
 		par = s.Split(par, "=")[0]
 		if opt.ShortOption == par || opt.LongOption == par {
