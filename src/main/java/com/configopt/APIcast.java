@@ -75,7 +75,7 @@ public class APIcast {
                 serviceGroups.add(serviceGroup);
             }
             return serviceGroups;
-        } else if (pathRoutingOnlyEnabled) {
+        } else {
             List<Service> tmpServices = new ArrayList<>();
             for (Service service : services) {
                 tmpServices.add(service);
@@ -83,12 +83,6 @@ public class APIcast {
             serviceGroups.add(tmpServices);
             return serviceGroups;
         }
-        for (Service service : services) {
-            List<Service> singleElementList = new ArrayList<>();
-            singleElementList.add(service);
-            serviceGroups.add(singleElementList);
-        }
-        return serviceGroups;
     }
 
     public void validateAllServices() {
