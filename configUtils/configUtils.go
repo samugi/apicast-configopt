@@ -3,11 +3,19 @@ package configUtils
 import (
 	"bytes"
 	"configopt/model"
+	"configopt/option"
 	"encoding/gob"
 	"encoding/json"
 	"io/ioutil"
 	"os"
 )
+
+var OptionConfig option.Option
+var OptionOutput option.Option
+var OptionVerbose option.Option
+var OptionInteractive option.Option
+var OptionPathRoutingOnly option.Option
+var OptionHelp option.Option
 
 func ExtractConfigJSONFromFileWithStructs(inputFilePath string) model.Configuration {
 	var configuration model.Configuration
@@ -81,4 +89,40 @@ func GetBytes(key interface{}) []byte {
 		return nil
 	}
 	return buf.Bytes()
+}
+
+func ValidateAllServices(config model.Configuration) {
+	createServiceGroups(config)
+}
+
+func createServiceGroups(config model.Configuration) (serviceGroups [][]*model.Proxy) {
+	serviceGroupsMap := make(map[string][]*model.Proxy)
+	proxyConfigs := config.ProxyConfigsOuter
+
+	if !OptionPathRoutingOnly.ValueB() {
+		//PATH ROUTING ONLY NOT ENABLED: for each service in the config, map by host in serviceGroupsMap
+		for _, proxyConfig := range proxyConfigs {
+			proxy := proxyConfig.ProxyConfig.Content.Proxy
+			host := proxy.Endpoint
+			if _, ok := serviceGroupsMap[host]; ok {
+				serviceGroupsMap[host] = append(serviceGroupsMap[host], &proxy)
+			} else {
+				serviceGroupsMap[host] = []*model.Proxy{&proxy}
+			}
+		}
+		for _, proxies := range serviceGroupsMap {
+			serviceGroups = append(serviceGroups, proxies)
+		}
+	} else {
+		var proxies []*model.Proxy
+		for _, proxyConfig := range proxyConfigs {
+			proxy := proxyConfig.ProxyConfig.Content.Proxy
+			proxies = append(proxies, &proxy)
+		}
+		serviceGroups = append(serviceGroups, proxies)
+	}
+
+	_ = serviceGroups
+	_ = serviceGroupsMap
+	return
 }
