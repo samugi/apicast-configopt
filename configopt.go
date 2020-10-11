@@ -21,16 +21,19 @@ func main() {
 	configUtils.OptionInteractive = option.New("-i", "--interactive", "Enables interactive mode", false, false)
 	configUtils.OptionPathRoutingOnly = option.New("-pro", "--pathroutingonly", "Runs in path routing only mode. Use this if you have APICAST_PATH_ROUTING_ONLY=true", false, false)
 	configUtils.OptionHelp = option.New("-h", "--help", "Show this help message", false, false)
+	configUtils.OptionConfirmAll = option.New("-y", "--yes", "Confirm all the optimizations by default", false, false)
 
 	options := []*option.Option{}
-	options = append(options, &configUtils.OptionConfig, &configUtils.OptionOutput, &configUtils.OptionVerbose, &configUtils.OptionInteractive, &configUtils.OptionPathRoutingOnly, &configUtils.OptionHelp)
+	options = append(options, &configUtils.OptionConfig, &configUtils.OptionOutput, &configUtils.OptionVerbose, &configUtils.OptionInteractive, &configUtils.OptionPathRoutingOnly, &configUtils.OptionHelp, &configUtils.OptionConfirmAll)
 	usage += clargs.GetUsageOptions(options)
 	args := os.Args[1:]
 	clargs.CheckArgs(args, options, usage)
 
 	inputFilePath := configUtils.OptionConfig.Value()
 	output.OutputFile = configUtils.OptionOutput.Value()
-
+	if configUtils.OptionInteractive.ValueB() {
+		configUtils.Mode = configUtils.ModeInteractive
+	}
 	config := configUtils.ExtractConfigJSONFromFileWithStructs(inputFilePath)
 
 	configUtils.InitializeRules(config)
@@ -40,7 +43,6 @@ func main() {
 	configUtils.ValidateAllProxies(config)
 
 	if configUtils.OptionInteractive.ValueB() {
-		configUtils.Mode = configUtils.ModeInteractive
 		output.RewriteConfig(config)
 	}
 
