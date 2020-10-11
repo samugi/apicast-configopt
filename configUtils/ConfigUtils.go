@@ -8,8 +8,11 @@ import (
 	"configopt/output"
 	"encoding/gob"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
+	"reflect"
+	"strings"
 )
 
 var OptionConfig option.Option
@@ -18,6 +21,7 @@ var OptionVerbose option.Option
 var OptionInteractive option.Option
 var OptionPathRoutingOnly option.Option
 var OptionHelp option.Option
+var OptionConfirmAll option.Option
 var Mode string
 
 const (
@@ -100,16 +104,20 @@ func GetBytes(key interface{}) []byte {
 }
 
 func ValidateAllProxies(config model.Configuration) {
-	proxyGroups := createProxyGroups(config)
-	for _, group := range proxyGroups {
-		var allRulesToVerify []model.MappingRule
-		for _, proxy := range group {
-			allRulesToVerify = append(allRulesToVerify, proxy.Proxy_rules...)
+	proxyGroups := createProxyGroups(&config)
+	for ind := 0; ind < len(proxyGroups); ind++ {
+		var allRulesToVerify []*model.MappingRule
+		for proxind := 0; proxind < len(proxyGroups[ind]); proxind++ {
+			proxyPointer := proxyGroups[ind][proxind]
+			rulesPnt := &((*proxyPointer).Proxy_rules)
+			for pRulesInd := 0; pRulesInd < len(*rulesPnt); pRulesInd++ {
+				allRulesToVerify = append(allRulesToVerify, &((*rulesPnt)[pRulesInd]))
+			}
 		}
 		//TODO progressbar
 
-		for index, rule := range allRulesToVerify {
-			validateMappingRule(rule, allRulesToVerify, index+1)
+		for indexRules := 0; indexRules < len(allRulesToVerify); indexRules++ {
+			validateMappingRule(allRulesToVerify[indexRules], allRulesToVerify, indexRules+1)
 		}
 		if Mode == ModeScan {
 			output.PrintIssues()
@@ -129,9 +137,10 @@ func InitializeRules(config model.Configuration) {
 	}
 }
 
-func validateMappingRule(rule model.MappingRule, allRules []model.MappingRule, index int) {
+func validateMappingRule(rule *model.MappingRule, allRulesp []*model.MappingRule, index int) {
+	allRules := allRulesp
 	for i := index; i < len(allRules); i++ {
-		currentRule := allRules[i]
+		currentRule := (allRules)[i]
 		severity := calculateSeverity(rule, currentRule)
 		if Mode == ModeScan {
 			var description string
@@ -141,17 +150,42 @@ func validateMappingRule(rule model.MappingRule, allRules []model.MappingRule, i
 				} else if rule.CanBeOptimized(currentRule) {
 					description = "rules could be optimized"
 				}
-				rules := []model.MappingRule{rule, currentRule}
+				rules := []model.MappingRule{*rule, *currentRule}
 				issue := model.Issue{Rules: rules, Description: description, Severity: severity}
 				globalUtils.Issues = append(globalUtils.Issues, issue)
 			}
 		} else if Mode == ModeInteractive {
-			//TODO INTERACTIVE MODE
+			if rule.BrutalMatch(currentRule) {
+				keep := !OptionConfirmAll.ValueB() && requestMappingKeep(*rule, *currentRule, true)
+				if !keep {
+					rule.SetMarkedForDeletion(true)
+				} else {
+					keep2 := requestMappingKeep(*currentRule, *rule, false)
+					if !keep2 {
+						currentRule.SetMarkedForDeletion(true)
+					}
+				}
+			} else if rule.CanBeOptimized(currentRule) {
+				optimize := OptionConfirmAll.ValueB() || requestOptimization(*currentRule, *rule)
+				shorter := model.GetShorter(*currentRule, *rule)
+				var longer model.MappingRule
+				if reflect.DeepEqual(shorter, currentRule) {
+					longer = *rule
+				} else {
+					longer = *currentRule
+				}
+				if optimize {
+					if shorter.IsExactMatch {
+						shorter.SetExactMatch(false)
+					}
+					longer.SetMarkedForDeletion(true)
+				}
+			}
 		}
 	}
 }
 
-func calculateSeverity(rule1 model.MappingRule, rule2 model.MappingRule) (retSev int) {
+func calculateSeverity(rule1 *model.MappingRule, rule2 *model.MappingRule) (retSev int) {
 	retSev = 2
 	if rule1.CanBeOptimized(rule2) {
 		retSev = 5
@@ -161,29 +195,29 @@ func calculateSeverity(rule1 model.MappingRule, rule2 model.MappingRule) (retSev
 	return
 }
 
-func createProxyGroups(config model.Configuration) (proxyGroups [][]*model.Proxy) {
+func createProxyGroups(config *model.Configuration) (proxyGroups [][]*model.Proxy) {
 	proxyGroupsMap := make(map[string][]*model.Proxy)
-	proxyConfigs := config.ProxyConfigsOuter
-
+	proxyConfigs := &((*config).ProxyConfigsOuter)
+	//(*proxyConfigs)[0].ProxyConfig.Content.Proxy.Proxy_rules[0].SetMarkedForDeletion(true)
 	if !globalUtils.PathRoutingOnly {
 		//PATH ROUTING ONLY NOT ENABLED: for each service in the config, map by host in serviceGroupsMap
-		for _, proxyConfig := range proxyConfigs {
-			proxy := proxyConfig.ProxyConfig.Content.Proxy
-			host := proxy.Endpoint
+		for i := 0; i < len(*proxyConfigs); i++ {
+			proxyAdr := &((*proxyConfigs)[i].ProxyConfig.Content.Proxy)
+			host := (*proxyAdr).Endpoint
 			if _, ok := proxyGroupsMap[host]; ok {
-				proxyGroupsMap[host] = append(proxyGroupsMap[host], &proxy)
+				proxyGroupsMap[host] = append(proxyGroupsMap[host], proxyAdr)
 			} else {
-				proxyGroupsMap[host] = []*model.Proxy{&proxy}
+				proxyGroupsMap[host] = []*model.Proxy{proxyAdr}
 			}
 		}
-		for _, proxies := range proxyGroupsMap {
-			proxyGroups = append(proxyGroups, proxies)
+		for k := range proxyGroupsMap {
+			proxyGroups = append(proxyGroups, proxyGroupsMap[k])
 		}
 	} else {
 		var proxies []*model.Proxy
-		for _, proxyConfig := range proxyConfigs {
-			proxy := proxyConfig.ProxyConfig.Content.Proxy
-			proxies = append(proxies, &proxy)
+		for i := 0; i < len(*proxyConfigs); i++ {
+			proxyAdr := &((*proxyConfigs)[i].ProxyConfig.Content.Proxy)
+			proxies = append(proxies, proxyAdr)
 		}
 		proxyGroups = append(proxyGroups, proxies)
 	}
@@ -191,4 +225,47 @@ func createProxyGroups(config model.Configuration) (proxyGroups [][]*model.Proxy
 	_ = proxyGroups
 	_ = proxyGroupsMap
 	return
+}
+
+func requestOptimization(currentRule model.MappingRule, rule model.MappingRule) bool {
+	shorter := model.GetShorter(currentRule, rule)
+	var longer model.MappingRule
+	if reflect.DeepEqual(shorter, currentRule) {
+		longer = rule
+	} else {
+		longer = currentRule
+	}
+
+	if !shorter.IsExactMatch {
+		panic("optimizable not ending with $")
+	}
+	fmt.Println("These rules " + shorter.String() + ", " + longer.String() + " could be optimized by removing the dollar from " + shorter.String() + " (if it exists) and deleting " + longer.String() + ". Would you like to proceed?  Y/N")
+	//reader := bufio.NewReader(os.Stdin)
+	var response string
+	for {
+		fmt.Scanln(&response)
+		if strings.EqualFold(response, "Y") {
+			return true
+		} else if strings.EqualFold(response, "N") {
+			return false
+		}
+		fmt.Println("Invalid response, would you like to proceed? Y/N")
+	}
+}
+
+func requestMappingKeep(rule1 model.MappingRule, rule2 model.MappingRule, ask bool) bool {
+	if ask {
+		fmt.Println("This rule: " + rule1.String() + " collides with: " + rule2.String())
+	}
+	fmt.Println("Would you like to keep " + rule2.String() + "?  Y/N")
+	var response string
+	for {
+		fmt.Scanln(&response)
+		if strings.EqualFold(response, "Y") {
+			return true
+		} else if strings.EqualFold(response, "N") {
+			return false
+		}
+		fmt.Println("Invalid response, would you like to keep " + rule2.String() + "? Y/N")
+	}
 }

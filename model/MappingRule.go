@@ -7,14 +7,15 @@ import (
 )
 
 type MappingRule struct {
-	Id           float64 `json:"id"`
-	Proxy_id     float64 `json:"proxy_id"`
-	Http_method  string  `json:"http_method"`
-	Pattern      string  `json:"pattern"`
-	Owner_id     string  `json:"owner_id"`
-	QueryPairs   map[string]string
-	IsExactMatch bool
-	Host         string
+	Id                  float64 `json:"id"`
+	Proxy_id            float64 `json:"proxy_id"`
+	Http_method         string  `json:"http_method"`
+	Pattern             string  `json:"pattern"`
+	Owner_id            string  `json:"owner_id"`
+	QueryPairs          map[string]string
+	IsExactMatch        bool
+	Host                string
+	IsMarkedForDeletion bool
 }
 
 func (rule *MappingRule) Initialize(host string) {
@@ -39,16 +40,20 @@ func (rule *MappingRule) Initialize(host string) {
 	}
 }
 
+func (rule *MappingRule) SetMarkedForDeletion(marked bool) {
+	(*rule).IsMarkedForDeletion = marked
+}
+
 func (rule MappingRule) String() string {
 	return rule.Http_method + " " + rule.getRealPath() + " - Service ID: " + fmt.Sprintf("%d", int(rule.Proxy_id)) + " Host: " + rule.Host
 }
 
-func (rule MappingRule) BrutalMatch(mr MappingRule) bool {
-	return rule.matches(mr) && !rule.optimizationMatch(mr)
+func (rule MappingRule) BrutalMatch(mr *MappingRule) bool {
+	return rule.matches(*mr) && !rule.optimizationMatch(*mr)
 }
 
-func (rule MappingRule) CanBeOptimized(mr MappingRule) bool {
-	return rule.matches(mr) && rule.optimizationMatch(mr)
+func (rule MappingRule) CanBeOptimized(mr *MappingRule) bool {
+	return rule.matches(*mr) && rule.optimizationMatch(*mr)
 }
 
 func (rule MappingRule) getRealPath() string {
@@ -58,8 +63,12 @@ func (rule MappingRule) getRealPath() string {
 	return rule.Pattern
 }
 
+func (rule *MappingRule) SetExactMatch(em bool) {
+	rule.IsExactMatch = em
+}
+
 func (rule MappingRule) optimizationMatch(mr MappingRule) bool {
-	shorterExactMatch := getShorter(rule, mr).IsExactMatch
+	shorterExactMatch := GetShorter(rule, mr).IsExactMatch
 	sameSectionsLengths := rule.getPathSectionsLength() == mr.getPathSectionsLength() && rule.getLastSectionLength() == mr.getLastSectionLength()
 	return !sameSectionsLengths && shorterExactMatch
 }
@@ -85,7 +94,7 @@ func (rule MappingRule) getLastSectionLength() int {
 	return len(lastSection)
 }
 
-func getShorter(mr1 MappingRule, mr2 MappingRule) MappingRule {
+func GetShorter(mr1 MappingRule, mr2 MappingRule) MappingRule {
 	if len(mr1.Pattern) < len(mr2.Pattern) {
 		return mr1
 	}
