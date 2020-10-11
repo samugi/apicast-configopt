@@ -2,8 +2,10 @@ package configUtils
 
 import (
 	"bytes"
+	"configopt/globalUtils"
 	"configopt/model"
 	"configopt/option"
+	"configopt/output"
 	"encoding/gob"
 	"encoding/json"
 	"io/ioutil"
@@ -16,6 +18,12 @@ var OptionVerbose option.Option
 var OptionInteractive option.Option
 var OptionPathRoutingOnly option.Option
 var OptionHelp option.Option
+var Mode string
+
+const (
+	ModeScan        = "SCAN"
+	ModeInteractive = "INTERACTIVE"
+)
 
 func ExtractConfigJSONFromFileWithStructs(inputFilePath string) model.Configuration {
 	var configuration model.Configuration
@@ -91,12 +99,57 @@ func GetBytes(key interface{}) []byte {
 	return buf.Bytes()
 }
 
-func ValidateAllServices(config model.Configuration) {
-	createServiceGroups(config)
+func ValidateAllProxies(config model.Configuration) {
+	proxyGroups := createProxyGroups(config)
+	for _, group := range proxyGroups {
+		var allRulesToVerify []model.MappingRule
+		for _, proxy := range group {
+			allRulesToVerify = append(allRulesToVerify, proxy.Proxy_rules...)
+		}
+		//TODO progressbar
+		initializeRules(config)
+		for index, rule := range allRulesToVerify {
+			validateMappingRule(rule, allRulesToVerify, index+1)
+		}
+		if Mode == ModeScan {
+			output.PrintIssues()
+		}
+	}
 }
 
-func createServiceGroups(config model.Configuration) (serviceGroups [][]*model.Proxy) {
-	serviceGroupsMap := make(map[string][]*model.Proxy)
+func initializeRules(config model.Configuration) {
+	proxyConfigs := config.ProxyConfigsOuter
+	for _, proxyConfig := range proxyConfigs {
+		proxy := proxyConfig.ProxyConfig.Content.Proxy
+		host := proxy.Endpoint
+		for _, rule := range proxy.Proxy_rules {
+			rule.Initialize(host)
+		}
+	}
+}
+
+func validateMappingRule(rule model.MappingRule, allRules []model.MappingRule, index int) {
+	for i := index; i < len(allRules); i++ {
+		currentRule := allRules[i]
+		severity := 1 //TODO SEVERITY
+		if Mode == ModeScan {
+			var description string
+			if rule.BrutalMatch(currentRule) {
+				description = "one rule matches the other"
+			} else if rule.CanBeOptimized(currentRule) {
+				description = "rules could be optimized"
+			}
+			rules := []model.MappingRule{rule, currentRule}
+			issue := model.Issue{Rules: rules, Description: description, Severity: severity}
+			globalUtils.Issues = append(globalUtils.Issues, issue)
+		} else if Mode == ModeInteractive {
+			//TODO INTERACTIVE MODE
+		}
+	}
+}
+
+func createProxyGroups(config model.Configuration) (proxyGroups [][]*model.Proxy) {
+	proxyGroupsMap := make(map[string][]*model.Proxy)
 	proxyConfigs := config.ProxyConfigsOuter
 
 	if !OptionPathRoutingOnly.ValueB() {
@@ -104,14 +157,14 @@ func createServiceGroups(config model.Configuration) (serviceGroups [][]*model.P
 		for _, proxyConfig := range proxyConfigs {
 			proxy := proxyConfig.ProxyConfig.Content.Proxy
 			host := proxy.Endpoint
-			if _, ok := serviceGroupsMap[host]; ok {
-				serviceGroupsMap[host] = append(serviceGroupsMap[host], &proxy)
+			if _, ok := proxyGroupsMap[host]; ok {
+				proxyGroupsMap[host] = append(proxyGroupsMap[host], &proxy)
 			} else {
-				serviceGroupsMap[host] = []*model.Proxy{&proxy}
+				proxyGroupsMap[host] = []*model.Proxy{&proxy}
 			}
 		}
-		for _, proxies := range serviceGroupsMap {
-			serviceGroups = append(serviceGroups, proxies)
+		for _, proxies := range proxyGroupsMap {
+			proxyGroups = append(proxyGroups, proxies)
 		}
 	} else {
 		var proxies []*model.Proxy
@@ -119,10 +172,10 @@ func createServiceGroups(config model.Configuration) (serviceGroups [][]*model.P
 			proxy := proxyConfig.ProxyConfig.Content.Proxy
 			proxies = append(proxies, &proxy)
 		}
-		serviceGroups = append(serviceGroups, proxies)
+		proxyGroups = append(proxyGroups, proxies)
 	}
 
-	_ = serviceGroups
-	_ = serviceGroupsMap
+	_ = proxyGroups
+	_ = proxyGroupsMap
 	return
 }
