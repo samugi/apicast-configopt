@@ -3,17 +3,18 @@ package main
 import (
 	"configopt/clargs"
 	"configopt/configUtils"
-	"configopt/model"
 	"configopt/option"
 	"configopt/output"
 	"fmt"
 	"os"
 )
 
-var usage string
+var usage = "usage: go run ConfigOpt.go [options...] --configuration <arg>"
+var PathRoutingOnly bool
 
 func main() {
-	usage = "usage: go run ConfigOpt.go [options...] --configuration <arg>"
+	configUtils.Mode = configUtils.ModeScan
+
 	configUtils.OptionConfig = option.New("-c", "--configuration", "JSON configuration file path", true, true)
 	configUtils.OptionOutput = option.New("-o", "--output", "Output file for report", true, false)
 	configUtils.OptionVerbose = option.New("-v", "--verbose", "Verbose logs", false, false)
@@ -32,13 +33,13 @@ func main() {
 
 	config := configUtils.ExtractConfigJSONFromFileWithStructs(inputFilePath)
 
-	pathRoutingOnly := configUtils.OptionPathRoutingOnly.ValueB()
-	apicast := model.Apicast{PathRoutingOnlyEnabled: pathRoutingOnly}
+	PathRoutingOnly = configUtils.OptionPathRoutingOnly.ValueB()
 
-	configUtils.ValidateAllServices(config)
+	configUtils.ValidateAllProxies(config)
 
 	if configUtils.OptionInteractive.ValueB() {
-		output.RewriteConfig(apicast, config)
+		configUtils.Mode = configUtils.ModeInteractive
+		output.RewriteConfig(config)
 	}
 
 	fmt.Sprint(config)
