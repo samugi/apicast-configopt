@@ -17,7 +17,7 @@ type MappingRule struct {
 	Host         string
 }
 
-func (rule MappingRule) Initialize(host string) {
+func (rule *MappingRule) Initialize(host string) {
 	query := rule.getQuery(rule.Pattern)
 	rule.Host = host
 	if query != "" {
