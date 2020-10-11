@@ -3,6 +3,7 @@ package main
 import (
 	"configopt/clargs"
 	"configopt/configUtils"
+	"configopt/globalUtils"
 	"configopt/option"
 	"configopt/output"
 	"fmt"
@@ -10,7 +11,6 @@ import (
 )
 
 var usage = "usage: go run ConfigOpt.go [options...] --configuration <arg>"
-var PathRoutingOnly bool
 
 func main() {
 	configUtils.Mode = configUtils.ModeScan
@@ -33,7 +33,9 @@ func main() {
 
 	config := configUtils.ExtractConfigJSONFromFileWithStructs(inputFilePath)
 
-	PathRoutingOnly = configUtils.OptionPathRoutingOnly.ValueB()
+	configUtils.InitializeRules(config)
+
+	globalUtils.PathRoutingOnly = configUtils.OptionPathRoutingOnly.ValueB()
 
 	configUtils.ValidateAllProxies(config)
 
@@ -43,5 +45,5 @@ func main() {
 	}
 
 	fmt.Sprint(config)
-	clargs.PrintValues(options)
+	//clargs.PrintValues(options)
 }

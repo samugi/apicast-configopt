@@ -5,6 +5,7 @@ import (
 	"configopt/model"
 	"fmt"
 	"os"
+	"sort"
 )
 
 var OutputFile string
@@ -14,6 +15,9 @@ func RewriteConfig(config model.Configuration) {
 }
 
 func PrintIssues() {
+	sort.Slice(globalUtils.Issues, func(i, j int) bool {
+		return globalUtils.Issues[i].Severity < globalUtils.Issues[j].Severity
+	})
 	if OutputFile == "" {
 		for _, issue := range globalUtils.Issues {
 			fmt.Println(issue.String())

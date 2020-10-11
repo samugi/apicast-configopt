@@ -107,7 +107,7 @@ func ValidateAllProxies(config model.Configuration) {
 			allRulesToVerify = append(allRulesToVerify, proxy.Proxy_rules...)
 		}
 		//TODO progressbar
-		initializeRules(config)
+
 		for index, rule := range allRulesToVerify {
 			validateMappingRule(rule, allRulesToVerify, index+1)
 		}
@@ -117,13 +117,14 @@ func ValidateAllProxies(config model.Configuration) {
 	}
 }
 
-func initializeRules(config model.Configuration) {
+func InitializeRules(config model.Configuration) {
 	proxyConfigs := config.ProxyConfigsOuter
-	for _, proxyConfig := range proxyConfigs {
-		proxy := proxyConfig.ProxyConfig.Content.Proxy
+	for indexPC := 0; indexPC < len(proxyConfigs); indexPC++ {
+		proxy := proxyConfigs[indexPC].ProxyConfig.Content.Proxy
 		host := proxy.Endpoint
-		for _, rule := range proxy.Proxy_rules {
-			rule.Initialize(host)
+		rules := proxy.Proxy_rules
+		for indexRules := 0; indexRules < len(rules); indexRules++ {
+			rules[indexRules].Initialize(host)
 		}
 	}
 }
@@ -131,28 +132,40 @@ func initializeRules(config model.Configuration) {
 func validateMappingRule(rule model.MappingRule, allRules []model.MappingRule, index int) {
 	for i := index; i < len(allRules); i++ {
 		currentRule := allRules[i]
-		severity := 1 //TODO SEVERITY
+		severity := calculateSeverity(rule, currentRule)
 		if Mode == ModeScan {
 			var description string
-			if rule.BrutalMatch(currentRule) {
-				description = "one rule matches the other"
-			} else if rule.CanBeOptimized(currentRule) {
-				description = "rules could be optimized"
+			if rule.BrutalMatch(currentRule) || rule.CanBeOptimized(currentRule) {
+				if rule.BrutalMatch(currentRule) {
+					description = "one rule matches the other"
+				} else if rule.CanBeOptimized(currentRule) {
+					description = "rules could be optimized"
+				}
+				rules := []model.MappingRule{rule, currentRule}
+				issue := model.Issue{Rules: rules, Description: description, Severity: severity}
+				globalUtils.Issues = append(globalUtils.Issues, issue)
 			}
-			rules := []model.MappingRule{rule, currentRule}
-			issue := model.Issue{Rules: rules, Description: description, Severity: severity}
-			globalUtils.Issues = append(globalUtils.Issues, issue)
 		} else if Mode == ModeInteractive {
 			//TODO INTERACTIVE MODE
 		}
 	}
 }
 
+func calculateSeverity(rule1 model.MappingRule, rule2 model.MappingRule) (retSev int) {
+	retSev = 2
+	if rule1.CanBeOptimized(rule2) {
+		retSev = 5
+	} else if (rule1.Host == rule2.Host || globalUtils.PathRoutingOnly) && rule1.Proxy_id != rule2.Proxy_id {
+		retSev = 1
+	}
+	return
+}
+
 func createProxyGroups(config model.Configuration) (proxyGroups [][]*model.Proxy) {
 	proxyGroupsMap := make(map[string][]*model.Proxy)
 	proxyConfigs := config.ProxyConfigsOuter
 
-	if !OptionPathRoutingOnly.ValueB() {
+	if !globalUtils.PathRoutingOnly {
 		//PATH ROUTING ONLY NOT ENABLED: for each service in the config, map by host in serviceGroupsMap
 		for _, proxyConfig := range proxyConfigs {
 			proxy := proxyConfig.ProxyConfig.Content.Proxy
