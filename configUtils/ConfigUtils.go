@@ -25,8 +25,12 @@ var OptionConfirmAll option.Option
 var Mode string
 
 const (
-	ModeScan        = "SCAN"
-	ModeInteractive = "INTERACTIVE"
+	ModeScan            = "SCAN"
+	ModeInteractive     = "INTERACTIVE"
+	ConfigFromDump      = "CONFIG_FROM_DUMP"
+	ConfigBoot          = "CONFIG_BOOT"
+	ConfigConfig        = "CONFIG_CONFIG"
+	ConfigSingleService = "CONFIG_SINGLE_SERVICE"
 )
 
 func ExtractConfigJSONFromFileWithStructs(inputFilePath string) model.Configuration {
@@ -35,8 +39,59 @@ func ExtractConfigJSONFromFileWithStructs(inputFilePath string) model.Configurat
 	check(err)
 	defer jsonFile.Close()
 	byteValue, _ := ioutil.ReadAll(jsonFile)
-	json.Unmarshal(byteValue, &configuration)
+
+	configType := scanConfigType(byteValue)
+
+	switch configType {
+	case ConfigFromDump:
+		json.Unmarshal(byteValue, &configuration)
+		break
+	case ConfigBoot:
+		var configBoot model.ConfigBoot
+		json.Unmarshal(byteValue, &configBoot)
+		for _, content := range configBoot.Config.Services {
+			pc := model.ProxyConfig{Content: content}
+			pco := model.ProxyConfigOuter{ProxyConfig: pc}
+			configuration.ProxyConfigsOuter = append(configuration.ProxyConfigsOuter, pco)
+		}
+		break
+	case ConfigConfig:
+		var configConfig model.ConfigConfig
+		json.Unmarshal(byteValue, &configConfig)
+		for _, content := range configConfig.Services {
+			pc := model.ProxyConfig{Content: content}
+			pco := model.ProxyConfigOuter{ProxyConfig: pc}
+			configuration.ProxyConfigsOuter = append(configuration.ProxyConfigsOuter, pco)
+		}
+		break
+	case ConfigSingleService:
+		var content model.Content
+		json.Unmarshal(byteValue, &content)
+		pc := model.ProxyConfig{Content: content}
+		pco := model.ProxyConfigOuter{ProxyConfig: pc}
+		configuration.ProxyConfigsOuter = append(configuration.ProxyConfigsOuter, pco)
+		break
+	}
+
 	return configuration
+}
+
+func scanConfigType(byteVal []byte) string {
+	var objmap map[string]interface{}
+	json.Unmarshal(byteVal, &objmap)
+	if _, ok := objmap["config"]; ok {
+		return ConfigBoot
+	}
+	if _, ok := objmap["services"]; ok {
+		return ConfigConfig
+	}
+	if _, ok := objmap["proxy_configs"]; ok {
+		return ConfigFromDump
+	}
+	if _, ok := objmap["proxy"]; ok {
+		return ConfigSingleService
+	}
+	return ""
 }
 
 // func ExtractConfigJSONFromFileWithInterfaces(inputFilePath string) map[string][]map[string]interface{} {
