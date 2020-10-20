@@ -68,7 +68,7 @@ func (rule *MappingRule) SetExactMatch(em bool) {
 }
 
 func (rule MappingRule) optimizationMatch(mr MappingRule) bool {
-	shorterExactMatch := GetShorter(rule, mr).IsExactMatch
+	shorterExactMatch := GetShorter(&rule, &mr).IsExactMatch
 	sameSectionsLengths := rule.getPathSectionsLength() == mr.getPathSectionsLength() && rule.getLastSectionLength() == mr.getLastSectionLength()
 	return !sameSectionsLengths && shorterExactMatch
 }
@@ -94,7 +94,7 @@ func (rule MappingRule) getLastSectionLength() int {
 	return len(lastSection)
 }
 
-func GetShorter(mr1 MappingRule, mr2 MappingRule) MappingRule {
+func GetShorter(mr1 *MappingRule, mr2 *MappingRule) *MappingRule {
 	if len(mr1.Pattern) < len(mr2.Pattern) {
 		return mr1
 	}
