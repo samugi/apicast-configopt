@@ -209,17 +209,17 @@ func validateMappingRule(rule *model.MappingRule, allRules []*model.MappingRule,
 				globalUtils.Issues = append(globalUtils.Issues, issue)
 			}
 		} else if Mode == ModeInteractive {
-			if !rule.IsMarkedForDeletion && rule.BrutalMatch(currentRule) {
+			if !(*rule).IsMarkedForDeletion && rule.BrutalMatch(currentRule) {
 				keep := !OptionConfirmAll.ValueB() && requestMappingKeep(*rule, *currentRule, true)
 				if !keep {
-					(*rule).SetMarkedForDeletion(true)
+					(*currentRule).SetMarkedForDeletion(true)
 				} else {
 					keep2 := requestMappingKeep(*currentRule, *rule, false)
 					if !keep2 {
-						(*currentRule).SetMarkedForDeletion(true)
+						(*rule).SetMarkedForDeletion(true)
 					}
 				}
-			} else if !rule.IsMarkedForDeletion && rule.CanBeOptimized(currentRule) {
+			} else if !(*rule).IsMarkedForDeletion && rule.CanBeOptimized(currentRule) {
 				optimize := OptionConfirmAll.ValueB() || requestOptimization(*currentRule, *rule)
 				shorter := model.GetShorter(currentRule, rule)
 				var longer *model.MappingRule
