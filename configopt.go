@@ -30,7 +30,10 @@ func main() {
 	clargs.CheckArgs(args, options, usage)
 
 	inputFilePath := configUtils.OptionConfig.Value()
+	fmt.Println("asdjoaijsdoaijsdojs")
+	fmt.Println(configUtils.OptionOutput.Value())
 	output.OutputFile = configUtils.OptionOutput.Value()
+	fmt.Println(output.OutputFile)
 	if configUtils.OptionInteractive.ValueB() {
 		configUtils.Mode = configUtils.ModeInteractive
 	}

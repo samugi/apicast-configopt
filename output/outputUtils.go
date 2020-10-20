@@ -3,6 +3,7 @@ package output
 import (
 	"configopt/globalUtils"
 	"configopt/model"
+	"encoding/json"
 	"fmt"
 	"os"
 	"sort"
@@ -11,7 +12,19 @@ import (
 var OutputFile string
 
 func RewriteConfig(config model.Configuration) {
-
+	if OutputFile != "" {
+		jsonized, err := json.Marshal(&config)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		file, error := os.Create(OutputFile)
+		if error != nil {
+			panic(error)
+		}
+		fmt.Fprint(file, string(jsonized))
+		file.Close()
+	}
 }
 
 func PrintIssues() {

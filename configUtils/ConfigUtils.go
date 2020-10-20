@@ -192,8 +192,7 @@ func InitializeRules(config model.Configuration) {
 	}
 }
 
-func validateMappingRule(rule *model.MappingRule, allRulesp []*model.MappingRule, index int) {
-	allRules := allRulesp
+func validateMappingRule(rule *model.MappingRule, allRules []*model.MappingRule, index int) {
 	for i := index; i < len(allRules); i++ {
 		currentRule := (allRules)[i]
 		severity := calculateSeverity(rule, currentRule)
@@ -210,30 +209,30 @@ func validateMappingRule(rule *model.MappingRule, allRulesp []*model.MappingRule
 				globalUtils.Issues = append(globalUtils.Issues, issue)
 			}
 		} else if Mode == ModeInteractive {
-			if rule.BrutalMatch(currentRule) {
+			if !rule.IsMarkedForDeletion && rule.BrutalMatch(currentRule) {
 				keep := !OptionConfirmAll.ValueB() && requestMappingKeep(*rule, *currentRule, true)
 				if !keep {
-					rule.SetMarkedForDeletion(true)
+					(*rule).SetMarkedForDeletion(true)
 				} else {
 					keep2 := requestMappingKeep(*currentRule, *rule, false)
 					if !keep2 {
-						currentRule.SetMarkedForDeletion(true)
+						(*currentRule).SetMarkedForDeletion(true)
 					}
 				}
-			} else if rule.CanBeOptimized(currentRule) {
+			} else if !rule.IsMarkedForDeletion && rule.CanBeOptimized(currentRule) {
 				optimize := OptionConfirmAll.ValueB() || requestOptimization(*currentRule, *rule)
-				shorter := model.GetShorter(*currentRule, *rule)
-				var longer model.MappingRule
+				shorter := model.GetShorter(currentRule, rule)
+				var longer *model.MappingRule
 				if reflect.DeepEqual(shorter, currentRule) {
-					longer = *rule
+					longer = rule
 				} else {
-					longer = *currentRule
+					longer = currentRule
 				}
 				if optimize {
 					if shorter.IsExactMatch {
-						shorter.SetExactMatch(false)
+						(*shorter).SetExactMatch(false)
 					}
-					longer.SetMarkedForDeletion(true)
+					(*longer).SetMarkedForDeletion(true)
 				}
 			}
 		}
@@ -283,7 +282,7 @@ func createProxyGroups(config *model.Configuration) (proxyGroups [][]*model.Prox
 }
 
 func requestOptimization(currentRule model.MappingRule, rule model.MappingRule) bool {
-	shorter := model.GetShorter(currentRule, rule)
+	shorter := model.GetShorter(&currentRule, &rule)
 	var longer model.MappingRule
 	if reflect.DeepEqual(shorter, currentRule) {
 		longer = rule
