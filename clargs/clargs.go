@@ -62,8 +62,8 @@ func getParameterValue(slice []string, parameter string) string {
 			if len(s.Split(par, "=")) > 1 {
 				return s.Split(par, "=")[1]
 			}
-			if index < len(par) {
-				return par[index:]
+			if index+1 < len(slice) {
+				return slice[index+1]
 			}
 		}
 	}
