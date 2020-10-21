@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"sort"
 )
 
@@ -18,7 +19,11 @@ func RewriteConfig(config model.Configuration) {
 			fmt.Println(err)
 			return
 		}
-		file, error := os.Create(OutputFile)
+		absFile, err := filepath.Abs(OutputFile)
+		if err != nil {
+			panic(err)
+		}
+		file, error := os.Create(absFile)
 		if error != nil {
 			panic(error)
 		}
@@ -37,7 +42,11 @@ func PrintIssues() {
 		}
 		return
 	}
-	file, error := os.Create(OutputFile)
+	absFile, err := filepath.Abs(OutputFile)
+	if err != nil {
+		panic(err)
+	}
+	file, error := os.Create(absFile)
 	if error != nil {
 		panic(error)
 	}

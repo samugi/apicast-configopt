@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 )
@@ -35,7 +36,11 @@ const (
 
 func ExtractConfigJSONFromFileWithStructs(inputFilePath string) model.Configuration {
 	var configuration model.Configuration
-	jsonFile, err := os.Open(inputFilePath)
+	absFile, err := filepath.Abs(inputFilePath)
+	if err != nil {
+		panic(err)
+	}
+	jsonFile, err := os.Open(absFile)
 	check(err)
 	defer jsonFile.Close()
 	byteValue, _ := ioutil.ReadAll(jsonFile)
@@ -214,7 +219,7 @@ func validateMappingRule(rule *model.MappingRule, allRules []*model.MappingRule,
 				if !keep {
 					(*currentRule).SetMarkedForDeletion(true)
 				} else {
-					keep2 := requestMappingKeep(*currentRule, *rule, false)
+					keep2 := !OptionConfirmAll.ValueB() && requestMappingKeep(*currentRule, *rule, false)
 					if !keep2 {
 						(*rule).SetMarkedForDeletion(true)
 					}
