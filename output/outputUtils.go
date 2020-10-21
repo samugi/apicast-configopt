@@ -13,6 +13,7 @@ import (
 var OutputFile string
 
 func RewriteConfig(config model.Configuration) {
+	config = cleanConfig(config)
 	if OutputFile != "" {
 		jsonized, err := json.Marshal(&config)
 		if err != nil {
@@ -30,6 +31,24 @@ func RewriteConfig(config model.Configuration) {
 		fmt.Fprint(file, string(jsonized))
 		file.Close()
 	}
+}
+
+func removeRule(proxyRules []model.MappingRule, i int) []model.MappingRule {
+	proxyRules[i] = proxyRules[len(proxyRules)-1]
+	return proxyRules[:len(proxyRules)-1]
+}
+
+func cleanConfig(config model.Configuration) model.Configuration {
+	for outerIndex, proxyConfigOuter := range config.ProxyConfigsOuter {
+		rules := proxyConfigOuter.ProxyConfig.Content.Proxy.Proxy_rules
+		for ruleIndex, proxyRule := range rules {
+			if proxyRule.IsMarkedForDeletion {
+				rules = removeRule(rules, ruleIndex)
+			}
+		}
+		config.ProxyConfigsOuter[outerIndex].ProxyConfig.Content.Proxy.Proxy_rules = rules
+	}
+	return config
 }
 
 func PrintIssues() {
