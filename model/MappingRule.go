@@ -12,6 +12,7 @@ type MappingRule struct {
 	Http_method         string  `json:"http_method"`
 	Pattern             string  `json:"pattern"`
 	Owner_id            string  `json:"owner_id"`
+	Owner_type          string  `json:"owner_type"`
 	QueryPairs          map[string]string
 	IsExactMatch        bool
 	Host                string
@@ -45,7 +46,7 @@ func (rule *MappingRule) SetMarkedForDeletion(marked bool) {
 }
 
 func (rule MappingRule) String() string {
-	return rule.Http_method + " " + rule.getRealPath() + " - Service ID: " + fmt.Sprintf("%d", int(rule.Proxy_id)) + " Host: " + rule.Host
+	return rule.Http_method + " " + rule.getRealPath() + " - Service ID: " + fmt.Sprintf("%d", int(rule.Proxy_id)) + " Host: " + rule.Host + " Owner type: " + rule.Owner_type
 }
 
 func (rule MappingRule) BrutalMatch(mr *MappingRule) bool {

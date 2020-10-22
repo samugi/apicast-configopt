@@ -32,6 +32,8 @@ const (
 	ConfigBoot          = "CONFIG_BOOT"
 	ConfigConfig        = "CONFIG_CONFIG"
 	ConfigSingleService = "CONFIG_SINGLE_SERVICE"
+	OwnerTypeProxy      = "Proxy"
+	OwnerTypeBackend    = "BackendApi"
 )
 
 func ExtractConfigJSONFromFileWithStructs(inputFilePath string) model.Configuration {
@@ -165,19 +167,36 @@ func GetBytes(key interface{}) []byte {
 
 func ValidateAllProxies(config model.Configuration) {
 	proxyGroups := createProxyGroups(&config)
+
 	for ind := 0; ind < len(proxyGroups); ind++ {
 		var allRulesToVerify []*model.MappingRule
+		backendRules := make(map[string][]*model.MappingRule)
 		for proxind := 0; proxind < len(proxyGroups[ind]); proxind++ {
 			proxyPointer := proxyGroups[ind][proxind]
 			rulesPnt := &((*proxyPointer).Proxy_rules)
 			for pRulesInd := 0; pRulesInd < len(*rulesPnt); pRulesInd++ {
-				allRulesToVerify = append(allRulesToVerify, &((*rulesPnt)[pRulesInd]))
+				// only add proxy rules, not backend rules
+				if (*rulesPnt)[pRulesInd].Owner_type == "" || (*rulesPnt)[pRulesInd].Owner_type == OwnerTypeProxy {
+					allRulesToVerify = append(allRulesToVerify, &((*rulesPnt)[pRulesInd]))
+				} else if (*rulesPnt)[pRulesInd].Owner_type == OwnerTypeBackend {
+					id := (*rulesPnt)[pRulesInd].Owner_id
+					if _, ok := backendRules[id]; ok {
+						backendRules[id] = append(backendRules[id], &((*rulesPnt)[pRulesInd]))
+					} else {
+						backendRules[id] = []*model.MappingRule{&((*rulesPnt)[pRulesInd])}
+					}
+				}
 			}
 		}
 		//TODO progressbar
 
 		for indexRules := 0; indexRules < len(allRulesToVerify); indexRules++ {
 			validateMappingRule(allRulesToVerify[indexRules], allRulesToVerify, indexRules+1)
+		}
+		for k := range backendRules {
+			for j := 0; j < len(backendRules[k]); j++ {
+				validateMappingRule(backendRules[k][j], backendRules[k], j+1)
+			}
 		}
 		if Mode == ModeScan {
 			output.PrintIssues()
@@ -248,6 +267,8 @@ func calculateSeverity(rule1 *model.MappingRule, rule2 *model.MappingRule) (retS
 	retSev = 2
 	if rule1.CanBeOptimized(rule2) {
 		retSev = 5
+	} else if rule1.Owner_type == OwnerTypeBackend {
+		retSev = 4
 	} else if (rule1.Host == rule2.Host || globalUtils.PathRoutingOnly) && rule1.Proxy_id != rule2.Proxy_id {
 		retSev = 1
 	}
