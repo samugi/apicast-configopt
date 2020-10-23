@@ -11,11 +11,9 @@ type Issue struct {
 func (i Issue) String() string {
 	var sb strings.Builder
 	sb.WriteString("Issue found " + i.getSeverityText() + " - " + i.Description + " - for mapping rules: \n")
-	for index, rule := range i.Rules {
+	for _, rule := range i.Rules {
 		sb.WriteString(rule.String())
-		if index < len(i.Rules)-1 {
-			sb.WriteString("\n")
-		}
+		sb.WriteString("\n")
 	}
 	return sb.String()
 }
