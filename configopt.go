@@ -21,10 +21,10 @@ func main() {
 	configUtils.OptionInteractive = option.New("-i", "--interactive", "Enables interactive mode", false, false)
 	configUtils.OptionPathRoutingOnly = option.New("-pro", "--pathroutingonly", "Runs in path routing only mode. Use this if you have APICAST_PATH_ROUTING_ONLY=true", false, false)
 	configUtils.OptionHelp = option.New("-h", "--help", "Show this help message", false, false)
-	configUtils.OptionConfirmAll = option.New("-y", "--yes", "Confirm all the optimizations by default", false, false)
+	configUtils.OptionAutoFix = option.New("-a", "--autofix", "Automatically fixes config. Pass value "+configUtils.AutoFix+" to just remove duplicates, "+configUtils.AutoOptimize+" to also auto-optimize", true, false)
 
 	options := []*option.Option{}
-	options = append(options, &configUtils.OptionConfig, &configUtils.OptionOutput, &configUtils.OptionVerbose, &configUtils.OptionInteractive, &configUtils.OptionPathRoutingOnly, &configUtils.OptionHelp, &configUtils.OptionConfirmAll)
+	options = append(options, &configUtils.OptionConfig, &configUtils.OptionOutput, &configUtils.OptionVerbose, &configUtils.OptionInteractive, &configUtils.OptionPathRoutingOnly, &configUtils.OptionHelp, &configUtils.OptionAutoFix)
 	usage += clargs.GetUsageOptions(options)
 	args := os.Args[1:]
 	clargs.CheckArgs(args, options, usage)
@@ -34,6 +34,26 @@ func main() {
 	if configUtils.OptionInteractive.ValueB() {
 		configUtils.Mode = configUtils.ModeInteractive
 	}
+	if configUtils.OptionAutoFix.ValueB() {
+		switch configUtils.OptionAutoFix.Value() {
+		case configUtils.AutoFix:
+			configUtils.Mode = configUtils.ModeAutoFix
+			break
+		case configUtils.AutoOptimize:
+			configUtils.Mode = configUtils.ModeAutoFix
+			break
+		default:
+			fmt.Println("Wrong value for autofix parameter")
+			clargs.PrintUsage(usage)
+			os.Exit(1)
+			break
+		}
+		if output.OutputFile == "" {
+			fmt.Println("Autofix requires an output file")
+			clargs.PrintUsage(usage)
+			os.Exit(1)
+		}
+	}
 	config := configUtils.ExtractConfigJSONFromFileWithStructs(inputFilePath)
 
 	configUtils.InitializeRules(config)
@@ -42,7 +62,7 @@ func main() {
 
 	configUtils.ValidateAllProxies(config)
 
-	if configUtils.OptionInteractive.ValueB() {
+	if configUtils.Mode == configUtils.ModeInteractive || configUtils.Mode == configUtils.ModeAutoFix {
 		output.RewriteConfig(config)
 	}
 
