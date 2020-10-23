@@ -23,11 +23,15 @@ var OptionInteractive option.Option
 var OptionPathRoutingOnly option.Option
 var OptionHelp option.Option
 var OptionConfirmAll option.Option
+var OptionAutoFix option.Option
 var Mode string
 
 const (
 	ModeScan            = "SCAN"
 	ModeInteractive     = "INTERACTIVE"
+	ModeAutoFix         = "AUTOFIX"
+	AutoOptimize        = "opt"
+	AutoFix             = "fix"
 	ConfigFromDump      = "CONFIG_FROM_DUMP"
 	ConfigBoot          = "CONFIG_BOOT"
 	ConfigConfig        = "CONFIG_CONFIG"
@@ -259,8 +263,38 @@ func validateMappingRule(rule *model.MappingRule, allRules []*model.MappingRule,
 					(*longer).SetMarkedForDeletion(true)
 				}
 			}
+		} else if Mode == ModeAutoFix {
+			if !(*rule).IsMarkedForDeletion && rule.BrutalMatch(currentRule) {
+				ruleToDelete := getAutoDelete(rule, currentRule)
+				(*ruleToDelete).SetMarkedForDeletion(true)
+			} else if !(*rule).IsMarkedForDeletion && rule.CanBeOptimized(currentRule) && OptionAutoFix.Value() == AutoOptimize {
+				shorter := model.GetShorter(currentRule, rule)
+				var longer *model.MappingRule
+				if reflect.DeepEqual(shorter, currentRule) {
+					longer = rule
+				} else {
+					longer = currentRule
+				}
+
+				if shorter.IsExactMatch {
+					(*shorter).SetExactMatch(false)
+				}
+				(*longer).SetMarkedForDeletion(true)
+			}
 		}
 	}
+}
+
+//for now let's auto delete the longest
+func getAutoDelete(rule1 *model.MappingRule, rule2 *model.MappingRule) *model.MappingRule {
+	shorter := model.GetShorter(rule1, rule2)
+	var longer *model.MappingRule
+	if reflect.DeepEqual(shorter, rule1) {
+		longer = rule2
+	} else {
+		longer = rule1
+	}
+	return longer
 }
 
 func calculateSeverity(rule1 *model.MappingRule, rule2 *model.MappingRule) (retSev int) {

@@ -3,6 +3,7 @@ package clargs
 import (
 	"configopt/option"
 	"fmt"
+	"os"
 	"strconv"
 	s "strings"
 )
@@ -29,7 +30,8 @@ func PrintValues(options []*option.Option) {
 
 func CheckArgs(args []string, options []*option.Option, usage string) {
 	if len(args) == 0 {
-		printUsage(usage)
+		PrintUsage(usage)
+		os.Exit(1)
 		return
 	}
 	for i, o := range options {
@@ -39,11 +41,13 @@ func CheckArgs(args []string, options []*option.Option, usage string) {
 		}
 		if o.Required {
 			if o.HasArgs && parameterValue == "" {
-				printUsage(usage)
+				PrintUsage(usage)
+				os.Exit(1)
 				return
 			}
 			if !findOptionInArgs(o, args) {
-				printUsage(usage)
+				PrintUsage(usage)
+				os.Exit(1)
 				return
 			}
 		}
@@ -52,7 +56,7 @@ func CheckArgs(args []string, options []*option.Option, usage string) {
 	}
 }
 
-func printUsage(usage string) {
+func PrintUsage(usage string) {
 	fmt.Println(usage)
 }
 

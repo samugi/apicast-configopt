@@ -33,20 +33,24 @@ func RewriteConfig(config model.Configuration) {
 	}
 }
 
-func removeRule(proxyRules []model.MappingRule, i int) []model.MappingRule {
-	proxyRules[i] = proxyRules[len(proxyRules)-1]
-	return proxyRules[:len(proxyRules)-1]
-}
+// func removeRule(proxyRules []model.MappingRule, i int) []model.MappingRule {
+// 	proxyRules[i] = proxyRules[len(proxyRules)-1]
+// 	return proxyRules[:len(proxyRules)-1]
+// }
 
 func cleanConfig(config model.Configuration) model.Configuration {
+
 	for outerIndex, proxyConfigOuter := range config.ProxyConfigsOuter {
+		k := 0
 		rules := proxyConfigOuter.ProxyConfig.Content.Proxy.Proxy_rules
-		for ruleIndex, proxyRule := range rules {
-			if proxyRule.IsMarkedForDeletion {
-				rules = removeRule(rules, ruleIndex)
+		for _, proxyRule := range rules {
+			//removing rules marked for deletion here
+			if !proxyRule.IsMarkedForDeletion {
+				rules[k] = proxyRule
+				k++
 			}
 		}
-		config.ProxyConfigsOuter[outerIndex].ProxyConfig.Content.Proxy.Proxy_rules = rules
+		config.ProxyConfigsOuter[outerIndex].ProxyConfig.Content.Proxy.Proxy_rules = rules[:k]
 	}
 	return config
 }
