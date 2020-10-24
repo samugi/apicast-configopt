@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	s "strings"
 )
 
@@ -77,9 +78,27 @@ func getParameterValue(slice []string, parameter string) string {
 func findOptionInArgs(opt *option.Option, parameters []string) bool {
 	for _, par := range parameters {
 		par = s.Split(par, "=")[0]
-		if opt.ShortOption == par || opt.LongOption == par {
-			return true
+
+		var pars []string
+		if len(par) > 2 && par[0] == '-' && par[1] != '-' { //this means it's a multiparam of the kind -abc
+			pars = strings.Split(par[1:len(par)], "")
+			pars = addHyphen(pars)
+		} else {
+			pars = append(pars, par)
+		}
+
+		for _, p := range pars {
+			if opt.ShortOption == p || opt.LongOption == p {
+				return true
+			}
 		}
 	}
 	return false
+}
+
+func addHyphen(parameters []string) []string {
+	for i, str := range parameters {
+		parameters[i] = "-" + str
+	}
+	return parameters
 }
