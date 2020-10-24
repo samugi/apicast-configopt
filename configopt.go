@@ -19,7 +19,7 @@ func main() {
 	configUtils.OptionOutput = option.New("-o", "--output", "Output file for report", true, false)
 	configUtils.OptionVerbose = option.New("-v", "--verbose", "Verbose logs", false, false)
 	configUtils.OptionInteractive = option.New("-i", "--interactive", "Enables interactive mode", false, false)
-	configUtils.OptionPathRoutingOnly = option.New("-pro", "--pathroutingonly", "Runs in path routing only mode. Use this if you have APICAST_PATH_ROUTING_ONLY=true", false, false)
+	configUtils.OptionPathRoutingOnly = option.New("-p", "--pathroutingonly", "Runs in path routing only mode. Use this if you have APICAST_PATH_ROUTING_ONLY=true", false, false)
 	configUtils.OptionHelp = option.New("-h", "--help", "Show this help message", false, false)
 	configUtils.OptionAutoFix = option.New("-a", "--autofix", "Automatically fixes config. Pass value "+configUtils.AutoFix+" to just remove duplicates, "+configUtils.AutoOptimize+" to also auto-optimize", true, false)
 
