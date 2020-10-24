@@ -2,6 +2,8 @@ github.com/ramya-rao-a/go-outline v0.0.0-20200117021646-2a048b4510eb h1:ilZSL4Va
 github.com/ramya-rao-a/go-outline v0.0.0-20200117021646-2a048b4510eb/go.mod h1:1WL5IqM+CnRCAbXetRnL1YVoS9KtU2zMhOi/5oAVPo4=
 github.com/samugi/simple-clargs v0.0.0-20201024124330-62ede4020cfb h1:vpqVNxRyRqMlfTgFBCz+qcgxKSev9mowtrYs0Tj1LNk=
 github.com/samugi/simple-clargs v0.0.0-20201024124330-62ede4020cfb/go.mod h1:A3yYeNFOJqQb31rx7O5kof+DyjSNKnqZkihWwX+vDjQ=
+github.com/samugi/simple-clargs v0.0.0-20201024131011-0f1915d5cd92 h1:2PhHOTAARG1y2O+jnkqfoDBjiyqIo29kLdsE9doY1lY=
+github.com/samugi/simple-clargs v0.0.0-20201024131011-0f1915d5cd92/go.mod h1:A3yYeNFOJqQb31rx7O5kof+DyjSNKnqZkihWwX+vDjQ=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=

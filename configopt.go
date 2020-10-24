@@ -10,7 +10,7 @@ import (
 	"github.com/samugi/simple-clargs/clargs"
 )
 
-var usage = "usage: go run ConfigOpt.go [options...] --configuration <arg>"
+var usage = "usage: ./configopt [options...] --configuration <arg>"
 
 func main() {
 	configUtils.Mode = configUtils.ModeScan
@@ -28,8 +28,8 @@ func main() {
 	args := os.Args[1:]
 
 	//check the command line arguments
-	clargs.Init(usage, options)
-	clargs.CheckArgs(args, options)
+	clargs.Init(usage, options, args)
+	clargs.CheckArgs()
 
 	inputFilePath := configUtils.OptionConfig.Value()
 	output.OutputFile = configUtils.OptionOutput.Value()
