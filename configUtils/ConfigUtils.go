@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"configopt/globalUtils"
 	"configopt/model"
-	"configopt/option"
 	"configopt/output"
 	"encoding/gob"
 	"encoding/json"
@@ -14,16 +13,18 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
+
+	"github.com/samugi/simple-clargs/clargs"
 )
 
-var OptionConfig option.Option
-var OptionOutput option.Option
-var OptionVerbose option.Option
-var OptionInteractive option.Option
-var OptionPathRoutingOnly option.Option
-var OptionHelp option.Option
-var OptionConfirmAll option.Option
-var OptionAutoFix option.Option
+var OptionConfig clargs.Option
+var OptionOutput clargs.Option
+var OptionVerbose clargs.Option
+var OptionInteractive clargs.Option
+var OptionPathRoutingOnly clargs.Option
+var OptionHelp clargs.Option
+var OptionConfirmAll clargs.Option
+var OptionAutoFix clargs.Option
 var Mode string
 
 const (
