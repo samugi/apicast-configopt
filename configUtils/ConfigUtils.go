@@ -175,16 +175,19 @@ func ValidateAllProxies(config model.Configuration) {
 
 	for ind := 0; ind < len(proxyGroups); ind++ {
 		var allRulesToVerify []*model.MappingRule
-		backendRules := make(map[string][]*model.MappingRule)
+		backendRules := make(map[float64][]*model.MappingRule)
 		for proxind := 0; proxind < len(proxyGroups[ind]); proxind++ {
 			proxyPointer := proxyGroups[ind][proxind]
 			rulesPnt := &((*proxyPointer).Proxy_rules)
 			for pRulesInd := 0; pRulesInd < len(*rulesPnt); pRulesInd++ {
 				// only add proxy rules, not backend rules
-				if (*rulesPnt)[pRulesInd].Owner_type == "" || (*rulesPnt)[pRulesInd].Owner_type == OwnerTypeProxy {
+				if (*rulesPnt)[pRulesInd].Owner_type == nil || *(*rulesPnt)[pRulesInd].Owner_type == "" || *(*rulesPnt)[pRulesInd].Owner_type == OwnerTypeProxy {
 					allRulesToVerify = append(allRulesToVerify, &((*rulesPnt)[pRulesInd]))
-				} else if (*rulesPnt)[pRulesInd].Owner_type == OwnerTypeBackend {
-					id := (*rulesPnt)[pRulesInd].Owner_id
+				} else if (*rulesPnt)[pRulesInd].Owner_type != nil && *(*rulesPnt)[pRulesInd].Owner_type == OwnerTypeBackend {
+					var id float64
+					if (*rulesPnt)[pRulesInd].Owner_id != nil {
+						id = *(*rulesPnt)[pRulesInd].Owner_id
+					}
 					if _, ok := backendRules[id]; ok {
 						backendRules[id] = append(backendRules[id], &((*rulesPnt)[pRulesInd]))
 					} else {
@@ -302,7 +305,7 @@ func calculateSeverity(rule1 *model.MappingRule, rule2 *model.MappingRule) (retS
 	retSev = 2
 	if rule1.CanBeOptimized(rule2) {
 		retSev = 5
-	} else if rule1.Owner_type == OwnerTypeBackend {
+	} else if rule1.Owner_type != nil && *rule1.Owner_type == OwnerTypeBackend {
 		retSev = 4
 	} else if (rule1.Host == rule2.Host || globalUtils.PathRoutingOnly) && rule1.Proxy_id != rule2.Proxy_id {
 		retSev = 1
