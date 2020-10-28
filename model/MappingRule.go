@@ -7,38 +7,53 @@ import (
 )
 
 type MappingRule struct {
-	Id                  float64 `json:"id"`
-	Proxy_id            float64 `json:"proxy_id"`
-	Http_method         string  `json:"http_method"`
-	Pattern             string  `json:"pattern"`
-	Owner_id            string  `json:"owner_id"`
-	Owner_type          string  `json:"owner_type"`
-	QueryPairs          map[string]string
-	IsExactMatch        bool
-	Host                string
-	IsMarkedForDeletion bool
+	Id                     *float64          `json:"id"`
+	Proxy_id               *float64          `json:"proxy_id"`
+	Http_method            *string           `json:"http_method"`
+	Pattern                *string           `json:"pattern"`
+	Owner_id               *float64          `json:"owner_id"`
+	Owner_type             *string           `json:"owner_type"`
+	Querystring_parameters map[string]string `json:"querystring_parameters"`
+
+	Metric_id          *float64 `json:"metric_id"`
+	Metric_system_name *string  `json:"metric_system_name"`
+	Delta              *float64 `json:"delta"`
+	Tenant_id          *float64 `json:"tenant_id"`
+	Created_at         *string  `json:"created_at"`
+	Updated_at         *string  `json:"updated_at"`
+	Redirect_url       *string  `json:"redirect_url"`
+	Position           *float64 `json:"position"`
+	Last               *bool    `json:"last"`
+	Parameters         []string `json:"parameters"`
+
+	//stuff I added
+	//	QueryPairs          map[string]string `json:"-"`
+	IsExactMatch        bool   `json:"-"`
+	Host                string `json:"-"`
+	IsMarkedForDeletion bool   `json:"-"`
 }
 
 func (rule *MappingRule) Initialize(host string) {
-	query := rule.getQuery(rule.Pattern)
+	query := rule.getQuery(*(rule.Pattern))
 	rule.Host = host
 	if query != "" {
-		rule.Pattern = strings.Replace(rule.Pattern, "?"+query, "", 1)
+		*rule.Pattern = strings.Replace(*(rule.Pattern), "?"+query, "", 1)
 	}
-	if strings.HasSuffix(rule.Pattern, "$") {
-		rule.Pattern = rule.Pattern[0 : len(rule.Pattern)-1]
+	if strings.HasSuffix(*(rule.Pattern), "$") {
+
+		*rule.Pattern = (*rule.Pattern)[0 : len(*(rule.Pattern))-1]
 		rule.IsExactMatch = true
 	}
 	if query == "" {
 		return
 	}
-	pairs := strings.Split(query, "&")
-	for _, pair := range pairs {
-		index := strings.Index(pair, "=")
-		if index > 0 {
-			rule.QueryPairs[pair[0:index]] = pair[index+1:]
-		}
-	}
+	// pairs := strings.Split(query, "&")
+	// for _, pair := range pairs {
+	// 	index := strings.Index(pair, "=")
+	// 	if index > 0 {
+	// 		rule.QueryPairs[pair[0:index]] = pair[index+1:]
+	// 	}
+	// }
 }
 
 func (rule *MappingRule) SetMarkedForDeletion(marked bool) {
@@ -46,7 +61,16 @@ func (rule *MappingRule) SetMarkedForDeletion(marked bool) {
 }
 
 func (rule MappingRule) String() string {
-	return rule.Http_method + " " + rule.getRealPath() + " - Service ID: " + fmt.Sprintf("%d", int(rule.Proxy_id)) + " Host: " + rule.Host + " Owner type: " + rule.Owner_type
+	var proxy_id float64
+	var owner_type string
+	if rule.Proxy_id != nil {
+		proxy_id = *rule.Proxy_id
+	}
+	if rule.Owner_type != nil {
+		owner_type = *rule.Owner_type
+	}
+
+	return *rule.Http_method + " " + rule.getRealPath() + " - Service ID: " + fmt.Sprintf("%d", int(proxy_id)) + " Host: " + rule.Host + " Owner type: " + owner_type
 }
 
 func (rule MappingRule) BrutalMatch(mr *MappingRule) bool {
@@ -59,9 +83,9 @@ func (rule MappingRule) CanBeOptimized(mr *MappingRule) bool {
 
 func (rule MappingRule) getRealPath() string {
 	if rule.IsExactMatch {
-		return rule.Pattern + "$"
+		return *rule.Pattern + "$"
 	}
-	return rule.Pattern
+	return *rule.Pattern
 }
 
 func (rule *MappingRule) SetExactMatch(em bool) {
@@ -75,19 +99,19 @@ func (rule MappingRule) optimizationMatch(mr MappingRule) bool {
 }
 
 func (rule MappingRule) matches(mr MappingRule) bool {
-	matghingMethods := strings.EqualFold(rule.Http_method, mr.Http_method)
+	matghingMethods := strings.EqualFold(*rule.Http_method, *mr.Http_method)
 	matchingQP := rule.matchQP(mr)
 	matchingPath := rule.matchingPath(mr)
 	return matghingMethods && matchingQP && matchingPath
 }
 
 func (rule MappingRule) getPathSectionsLength() int {
-	mr1 := strings.Split(rule.Pattern, "/")
+	mr1 := strings.Split(*rule.Pattern, "/")
 	return len(mr1)
 }
 
 func (rule MappingRule) getLastSectionLength() int {
-	mr1 := strings.Split(rule.Pattern, "/")
+	mr1 := strings.Split(*rule.Pattern, "/")
 	if len(mr1) == 0 {
 		return 0
 	}
@@ -96,18 +120,18 @@ func (rule MappingRule) getLastSectionLength() int {
 }
 
 func GetShorter(mr1 *MappingRule, mr2 *MappingRule) *MappingRule {
-	if len(mr1.Pattern) < len(mr2.Pattern) {
+	if len(*mr1.Pattern) < len(*mr2.Pattern) {
 		return mr1
 	}
 	return mr2
 }
 
 func (rule MappingRule) matchQP(mr MappingRule) bool {
-	return reflect.DeepEqual(rule.QueryPairs, mr.QueryPairs)
+	return reflect.DeepEqual(rule.Querystring_parameters, mr.Querystring_parameters)
 }
 
 func (rule MappingRule) matchingPath(mr MappingRule) bool {
-	if strings.HasPrefix(rule.Pattern, mr.Pattern) || strings.HasPrefix(mr.Pattern, rule.Pattern) {
+	if strings.HasPrefix(*rule.Pattern, *mr.Pattern) || strings.HasPrefix(*mr.Pattern, *rule.Pattern) {
 		return true
 	}
 	if rule.matchWithParams(mr) {
@@ -117,8 +141,8 @@ func (rule MappingRule) matchingPath(mr MappingRule) bool {
 }
 
 func (rule MappingRule) matchWithParams(mr MappingRule) bool {
-	mr1 := strings.Split(rule.Pattern, "/")
-	mr2 := strings.Split(mr.Pattern, "/")
+	mr1 := strings.Split(*rule.Pattern, "/")
+	mr2 := strings.Split(*mr.Pattern, "/")
 	if len(mr1) != len(mr2) {
 		return false
 	}
