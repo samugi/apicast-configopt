@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/samugi/simple-clargs/clargs"
 )
@@ -197,14 +198,22 @@ func ValidateAllProxies(config model.Configuration) {
 			}
 		}
 		//TODO progressbar
-
+		pbProxy := model.NewProgressBar(len(allRulesToVerify))
 		for indexRules := 0; indexRules < len(allRulesToVerify); indexRules++ {
 			validateMappingRule(allRulesToVerify[indexRules], allRulesToVerify, indexRules+1)
+			pbProxy.Increment()
+			time.Sleep(time.Millisecond)
 		}
+		pbProxy.Finish()
+
 		for k := range backendRules {
+			pbBackend := model.NewProgressBar(len(backendRules[k]))
 			for j := 0; j < len(backendRules[k]); j++ {
 				validateMappingRule(backendRules[k][j], backendRules[k], j+1)
+				pbBackend.Increment()
+				time.Sleep(time.Millisecond)
 			}
+			pbBackend.Finish()
 		}
 		if Mode == ModeScan {
 			output.PrintIssues()
