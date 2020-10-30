@@ -1,4 +1,4 @@
-package output
+package configUtils
 
 import (
 	"configopt/globalUtils"
@@ -14,8 +14,9 @@ var OutputFile string
 
 func RewriteConfig(config model.Configuration) {
 	config = cleanConfig(config)
+	FullConfig = InjectMappingRules(FullConfigBytes, config)
 	if OutputFile != "" {
-		jsonized, err := json.Marshal(&config)
+		jsonized, err := json.Marshal(&FullConfig.FullConfigContainer)
 		if err != nil {
 			fmt.Println(err)
 			return

@@ -3,7 +3,6 @@ package main
 import (
 	"configopt/configUtils"
 	"configopt/globalUtils"
-	"configopt/output"
 	"fmt"
 	"os"
 
@@ -32,7 +31,7 @@ func main() {
 	clargs.CheckArgs()
 
 	inputFilePath := configUtils.OptionConfig.Value()
-	output.OutputFile = configUtils.OptionOutput.Value()
+	configUtils.OutputFile = configUtils.OptionOutput.Value()
 	if configUtils.OptionInteractive.ValueB() {
 		configUtils.Mode = configUtils.ModeInteractive
 	}
@@ -50,7 +49,7 @@ func main() {
 			os.Exit(1)
 			break
 		}
-		if output.OutputFile == "" {
+		if configUtils.OutputFile == "" {
 			fmt.Println("Autofix requires an output file")
 			clargs.PrintUsage()
 			os.Exit(1)
@@ -65,7 +64,7 @@ func main() {
 	configUtils.ValidateAllProxies(config)
 
 	if configUtils.Mode == configUtils.ModeInteractive || configUtils.Mode == configUtils.ModeAutoFix {
-		output.RewriteConfig(config)
+		configUtils.RewriteConfig(config)
 	}
 
 	fmt.Sprint(config)
