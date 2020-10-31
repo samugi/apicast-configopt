@@ -210,7 +210,14 @@ func InitializeRules(config model.Configuration) {
 }
 
 func validateMappingRule(rule *model.MappingRule, allRules []*model.MappingRule, index int) {
+	currentRuleIndex := index - 1
+	if Mode == ModeAutoFix || Mode == ModeInteractive {
+		index = 0 //in this case we start from the beginning of the list because these modes potentially change the rules
+	}
 	for i := index; i < len(allRules); i++ {
+		if i == currentRuleIndex {
+			continue
+		}
 		currentRule := (allRules)[i]
 		severity := calculateSeverity(rule, currentRule)
 		if Mode == ModeScan {
