@@ -7,22 +7,22 @@ import (
 )
 
 type MappingRule struct {
-	Id                     *float64          `json:"id"`
-	Proxy_id               *float64          `json:"proxy_id"`
+	Id                     *int64            `json:"id"`
+	Proxy_id               *int64            `json:"proxy_id"`
 	Http_method            *string           `json:"http_method"`
 	Pattern                *string           `json:"pattern"`
-	Owner_id               *float64          `json:"owner_id"`
+	Owner_id               *int64            `json:"owner_id"`
 	Owner_type             *string           `json:"owner_type"`
 	Querystring_parameters map[string]string `json:"querystring_parameters"`
 
-	Metric_id          *float64 `json:"metric_id"`
+	Metric_id          *int64   `json:"metric_id"`
 	Metric_system_name *string  `json:"metric_system_name"`
-	Delta              *float64 `json:"delta"`
-	Tenant_id          *float64 `json:"tenant_id"`
+	Delta              *int64   `json:"delta"`
+	Tenant_id          *int64   `json:"tenant_id"`
 	Created_at         *string  `json:"created_at"`
 	Updated_at         *string  `json:"updated_at"`
 	Redirect_url       *string  `json:"redirect_url"`
-	Position           *float64 `json:"position"`
+	Position           *int64   `json:"position"`
 	Last               *bool    `json:"last"`
 	Parameters         []string `json:"parameters"`
 
@@ -61,7 +61,7 @@ func (rule *MappingRule) SetMarkedForDeletion(marked bool) {
 }
 
 func (rule MappingRule) String() string {
-	var proxy_id float64
+	var proxy_id int64
 	var owner_type string
 	if rule.Proxy_id != nil {
 		proxy_id = *rule.Proxy_id

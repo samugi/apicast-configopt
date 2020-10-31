@@ -124,13 +124,6 @@ func ExtractStringFromJSON(dict map[string]interface{}, key string) string {
 	return ""
 }
 
-func ExtractFloatFromJSON(dict map[string]interface{}, key string) float64 {
-	if val, ok := dict[key]; ok {
-		return val.(float64)
-	}
-	return -1
-}
-
 func GetBytes(key interface{}) []byte {
 	var buf bytes.Buffer
 	enc := gob.NewEncoder(&buf)
@@ -146,7 +139,7 @@ func ValidateAllProxies(config model.Configuration) {
 
 	for ind := 0; ind < len(proxyGroups); ind++ {
 		var allRulesToVerify []*model.MappingRule
-		backendRules := make(map[float64][]*model.MappingRule)
+		backendRules := make(map[int64][]*model.MappingRule)
 		for proxind := 0; proxind < len(proxyGroups[ind]); proxind++ {
 			proxyPointer := proxyGroups[ind][proxind]
 			rulesPnt := &((*proxyPointer).Proxy_rules)
@@ -155,7 +148,7 @@ func ValidateAllProxies(config model.Configuration) {
 				if (*rulesPnt)[pRulesInd].Owner_type == nil || *(*rulesPnt)[pRulesInd].Owner_type == "" || *(*rulesPnt)[pRulesInd].Owner_type == OwnerTypeProxy {
 					allRulesToVerify = append(allRulesToVerify, &((*rulesPnt)[pRulesInd]))
 				} else if (*rulesPnt)[pRulesInd].Owner_type != nil && *(*rulesPnt)[pRulesInd].Owner_type == OwnerTypeBackend {
-					var id float64
+					var id int64
 					if (*rulesPnt)[pRulesInd].Owner_id != nil {
 						id = *(*rulesPnt)[pRulesInd].Owner_id
 					}
@@ -286,7 +279,7 @@ func calculateSeverity(rule1 *model.MappingRule, rule2 *model.MappingRule) (retS
 		retSev = 5
 	} else if rule1.Owner_type != nil && *rule1.Owner_type == OwnerTypeBackend {
 		retSev = 4
-	} else if (rule1.Host == rule2.Host || globalUtils.PathRoutingOnly) && rule1.Proxy_id != rule2.Proxy_id {
+	} else if (rule1.Host == rule2.Host || globalUtils.PathRoutingOnly) && *rule1.Proxy_id != *rule2.Proxy_id {
 		retSev = 1
 	}
 	return
