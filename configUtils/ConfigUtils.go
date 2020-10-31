@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/cheggaaa/pb"
 	"github.com/samugi/simple-clargs/clargs"
 )
 
@@ -160,23 +161,35 @@ func ValidateAllProxies(config model.Configuration) {
 				}
 			}
 		}
-		//TODO progressbar
-		pbProxy := model.NewProgressBar(len(allRulesToVerify))
+		var pbBackend, pbProxy *pb.ProgressBar
+		if Mode == ModeAutoFix || Mode == ModeScan {
+			pbProxy = model.NewProgressBar(len(allRulesToVerify))
+		}
 		for indexRules := 0; indexRules < len(allRulesToVerify); indexRules++ {
 			validateMappingRule(allRulesToVerify[indexRules], allRulesToVerify, indexRules+1)
-			pbProxy.Increment()
-			time.Sleep(time.Millisecond)
-		}
-		pbProxy.Finish()
-
-		for k := range backendRules {
-			pbBackend := model.NewProgressBar(len(backendRules[k]))
-			for j := 0; j < len(backendRules[k]); j++ {
-				validateMappingRule(backendRules[k][j], backendRules[k], j+1)
-				pbBackend.Increment()
+			if Mode == ModeAutoFix || Mode == ModeScan {
+				pbProxy.Increment()
 				time.Sleep(time.Millisecond)
 			}
-			pbBackend.Finish()
+		}
+		if Mode == ModeAutoFix || Mode == ModeScan {
+			pbProxy.Finish()
+		}
+
+		for k := range backendRules {
+			if Mode == ModeAutoFix || Mode == ModeScan {
+				pbBackend = model.NewProgressBar(len(backendRules[k]))
+			}
+			for j := 0; j < len(backendRules[k]); j++ {
+				validateMappingRule(backendRules[k][j], backendRules[k], j+1)
+				if Mode == ModeAutoFix || Mode == ModeScan {
+					pbBackend.Increment()
+				}
+				time.Sleep(time.Millisecond)
+			}
+			if Mode == ModeAutoFix || Mode == ModeScan {
+				pbBackend.Finish()
+			}
 		}
 		if Mode == ModeScan {
 			PrintIssues()
@@ -329,7 +342,7 @@ func requestOptimization(currentRule model.MappingRule, rule model.MappingRule) 
 	if !shorter.IsExactMatch {
 		panic("optimizable not ending with $")
 	}
-	fmt.Println("These rules " + shorter.String() + ", " + longer.String() + " could be optimized by removing the dollar from " + shorter.String() + " (if it exists) and deleting " + longer.String() + ". Would you like to proceed?  Y/N")
+	fmt.Println("These rules \n" + shorter.String() + ", \n" + longer.String() + "\ncould be optimized by removing the dollar from \n" + shorter.String() + " (if it exists) and deleting \n" + longer.String() + ". Would you like to proceed?  Y/N")
 	//reader := bufio.NewReader(os.Stdin)
 	var response string
 	for {
