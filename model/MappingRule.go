@@ -42,7 +42,7 @@ func (rule *MappingRule) Initialize(host string) {
 	}
 	if strings.HasSuffix(*(rule.Pattern), "$") {
 
-		*rule.Pattern = (*rule.Pattern)[0 : len(*(rule.Pattern))-1]
+		//	*rule.Pattern = (*rule.Pattern)[0 : len(*(rule.Pattern))-1]
 		rule.IsExactMatch = true
 	}
 	if query == "" {
@@ -82,9 +82,9 @@ func (rule MappingRule) CanBeOptimized(mr *MappingRule) bool {
 }
 
 func (rule MappingRule) getRealPath() string {
-	if rule.IsExactMatch {
-		return *rule.Pattern + "$"
-	}
+	//	if rule.IsExactMatch {
+	//		return *rule.Pattern + "$"
+	//	}
 	return *rule.Pattern
 }
 
@@ -106,12 +106,14 @@ func (rule MappingRule) matches(mr MappingRule) bool {
 }
 
 func (rule MappingRule) getPathSectionsLength() int {
-	mr1 := strings.Split(*rule.Pattern, "/")
+	pattern := strings.Trim(*rule.Pattern, "$")
+	mr1 := strings.Split(pattern, "/")
 	return len(mr1)
 }
 
 func (rule MappingRule) getLastSectionLength() int {
-	mr1 := strings.Split(*rule.Pattern, "/")
+	pattern := strings.Trim(*rule.Pattern, "$")
+	mr1 := strings.Split(pattern, "/")
 	if len(mr1) == 0 {
 		return 0
 	}
@@ -120,7 +122,9 @@ func (rule MappingRule) getLastSectionLength() int {
 }
 
 func GetShorter(mr1 *MappingRule, mr2 *MappingRule) *MappingRule {
-	if len(*mr1.Pattern) < len(*mr2.Pattern) {
+	p1 := strings.Trim(*mr1.Pattern, "$")
+	p2 := strings.Trim(*mr2.Pattern, "$")
+	if len(p1) < len(p2) {
 		return mr1
 	}
 	return mr2
@@ -131,7 +135,9 @@ func (rule MappingRule) matchQP(mr MappingRule) bool {
 }
 
 func (rule MappingRule) matchingPath(mr MappingRule) bool {
-	if strings.HasPrefix(*rule.Pattern, *mr.Pattern) || strings.HasPrefix(*mr.Pattern, *rule.Pattern) {
+	p1 := strings.Trim(*rule.Pattern, "$")
+	p2 := strings.Trim(*mr.Pattern, "$")
+	if strings.HasPrefix(p1, p2) || strings.HasPrefix(p2, p1) {
 		return true
 	}
 	if rule.matchWithParams(mr) {
@@ -141,8 +147,10 @@ func (rule MappingRule) matchingPath(mr MappingRule) bool {
 }
 
 func (rule MappingRule) matchWithParams(mr MappingRule) bool {
-	mr1 := strings.Split(*rule.Pattern, "/")
-	mr2 := strings.Split(*mr.Pattern, "/")
+	p1 := strings.Trim(*rule.Pattern, "$")
+	p2 := strings.Trim(*mr.Pattern, "$")
+	mr1 := strings.Split(p1, "/")
+	mr2 := strings.Split(p2, "/")
 	if len(mr1) != len(mr2) {
 		return false
 	}
