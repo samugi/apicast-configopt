@@ -210,15 +210,14 @@ func InitializeRules(config model.Configuration) {
 }
 
 func validateMappingRule(rule *model.MappingRule, allRules []*model.MappingRule, index int) {
-	currentRuleIndex := index - 1
 	if Mode == ModeAutoFix || Mode == ModeInteractive {
 		index = 0 //in this case we start from the beginning of the list because these modes potentially change the rules
 	}
 	for i := index; i < len(allRules); i++ {
-		if i == currentRuleIndex {
+		currentRule := (allRules)[i]
+		if *(rule.Id) == *(currentRule.Id) {
 			continue
 		}
-		currentRule := (allRules)[i]
 		severity := calculateSeverity(rule, currentRule)
 		if Mode == ModeScan {
 			var description string
@@ -340,7 +339,7 @@ func createProxyGroups(config *model.Configuration) (proxyGroups [][]*model.Prox
 func requestOptimization(currentRule model.MappingRule, rule model.MappingRule) bool {
 	shorter := model.GetShorter(&currentRule, &rule)
 	var longer model.MappingRule
-	if reflect.DeepEqual(shorter, currentRule) {
+	if shorter.Id == currentRule.Id {
 		longer = rule
 	} else {
 		longer = currentRule
@@ -349,7 +348,7 @@ func requestOptimization(currentRule model.MappingRule, rule model.MappingRule) 
 	if !shorter.IsExactMatch {
 		panic("optimizable not ending with $")
 	}
-	fmt.Println("These rules \n" + shorter.String() + ", \n" + longer.String() + "\ncould be optimized by removing the dollar from \n" + shorter.String() + " (if it exists) and deleting \n" + longer.String() + ". Would you like to proceed?  Y/N")
+	fmt.Println("These rules \n" + shorter.String() + ", \n" + longer.String() + "\ncould be optimized by removing the dollar from \n" + shorter.String() + " and deleting \n" + longer.String() + ". Would you like to proceed?  Y/N")
 	//reader := bufio.NewReader(os.Stdin)
 	var response string
 	for {

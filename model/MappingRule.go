@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -69,8 +70,7 @@ func (rule MappingRule) String() string {
 	if rule.Owner_type != nil {
 		owner_type = *rule.Owner_type
 	}
-
-	return *rule.Http_method + " " + rule.getRealPath() + " - Service ID: " + fmt.Sprintf("%d", int(proxy_id)) + " Host: " + rule.Host + " Owner type: " + owner_type
+	return *rule.Http_method + " " + rule.getRealPath() + " - ID: " + strconv.FormatInt(*(rule.Id), 10) + " - Service ID: " + fmt.Sprintf("%d", int(proxy_id)) + " Host: " + rule.Host + " Owner type: " + owner_type
 }
 
 func (rule MappingRule) BrutalMatch(mr *MappingRule) bool {
