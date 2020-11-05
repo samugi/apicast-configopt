@@ -101,7 +101,7 @@ func (rule MappingRule) optimizationMatch(mr MappingRule) bool {
 func (rule MappingRule) matches(mr MappingRule) bool {
 	matghingMethods := strings.EqualFold(*rule.Http_method, *mr.Http_method)
 	matchingQP := rule.matchQP(mr)
-	matchingPath := rule.matchingPath(mr)
+	matchingPath := rule.matchWithParams(mr)
 	return matghingMethods && matchingQP && matchingPath
 }
 
@@ -132,32 +132,6 @@ func GetShorter(mr1 *MappingRule, mr2 *MappingRule) *MappingRule {
 
 func (rule MappingRule) matchQP(mr MappingRule) bool {
 	return reflect.DeepEqual(rule.Querystring_parameters, mr.Querystring_parameters)
-}
-
-func (rule MappingRule) matchingPath(mr MappingRule) bool {
-	p1 := trimSuffixes(*rule.Pattern)
-	p2 := trimSuffixes(*mr.Pattern)
-	if strings.HasPrefix(p1, p2) || strings.HasPrefix(p2, p1) {
-		return true
-	}
-	if rule.matchWithParams(mr) {
-		return true
-	}
-	return false
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func trimSuffixes(path string) string {
-	path = strings.TrimSuffix(path, "$")
-	path = strings.TrimSuffix(path, "/")
-	path = strings.TrimSuffix(path, "\\")
-	return path
 }
 
 func (rule MappingRule) matchWithParams(mr MappingRule) bool {
@@ -199,4 +173,18 @@ func (rule MappingRule) getQuery(pattern string) string {
 		return pattern[lastQuery+1:]
 	}
 	return ""
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func trimSuffixes(path string) string {
+	path = strings.TrimSuffix(path, "$")
+	path = strings.TrimSuffix(path, "/")
+	path = strings.TrimSuffix(path, "\\")
+	return path
 }
