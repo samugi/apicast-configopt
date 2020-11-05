@@ -10,7 +10,7 @@ type Issue struct {
 
 func (i Issue) String() string {
 	var sb strings.Builder
-	sb.WriteString("Issue found " + i.getSeverityText() + " - " + i.Description + " - for mapping rules: \n")
+	sb.WriteString("Issue found " + i.getSeverityText() + " : " + i.Description + " - for mapping rules: \n")
 	for _, rule := range i.Rules {
 		sb.WriteString(rule.String())
 		sb.WriteString("\n")
