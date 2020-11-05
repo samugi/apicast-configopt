@@ -7,6 +7,9 @@ import (
 	"strings"
 )
 
+var LongestRuleLength int
+var LongestHostLength int
+
 type MappingRule struct {
 	Id                     *int64            `json:"id"`
 	Proxy_id               *int64            `json:"proxy_id"`
@@ -70,7 +73,9 @@ func (rule MappingRule) String() string {
 	if rule.Owner_type != nil {
 		owner_type = *rule.Owner_type
 	}
-	return *rule.Http_method + " " + rule.getRealPath() + " - ID: " + strconv.FormatInt(*(rule.Id), 10) + " - Service ID: " + fmt.Sprintf("%d", int(proxy_id)) + " Host: " + rule.Host + " Owner type: " + owner_type
+	gapPattern := strings.Repeat(" ", LongestRuleLength-rule.getPatternLength()+3)
+	gapHost := strings.Repeat(" ", LongestHostLength-rule.getHostLength()+3)
+	return " " + *rule.Http_method + " " + rule.getPattern() + gapPattern + " | ID: " + strconv.FormatInt(*(rule.Id), 10) + " | Service ID: " + fmt.Sprintf("%d", int(proxy_id)) + " | Host: " + rule.Host + gapHost + " | Owner type: " + owner_type
 }
 
 func (rule MappingRule) BrutalMatch(mr *MappingRule) bool {
@@ -81,10 +86,7 @@ func (rule MappingRule) CanBeOptimized(mr *MappingRule) bool {
 	return rule.matches(*mr) && rule.optimizationMatch(*mr)
 }
 
-func (rule MappingRule) getRealPath() string {
-	//	if rule.IsExactMatch {
-	//		return *rule.Pattern + "$"
-	//	}
+func (rule MappingRule) getPattern() string {
 	return *rule.Pattern
 }
 
@@ -131,6 +133,14 @@ func GetShorter(mr1 *MappingRule, mr2 *MappingRule) *MappingRule {
 	return mr2
 }
 
+func (rule MappingRule) getPatternLength() int {
+	return len(*rule.Pattern)
+}
+
+func (rule MappingRule) getHostLength() int {
+	return len(rule.Host)
+}
+
 func (rule MappingRule) matchQP(mr MappingRule) bool {
 	return reflect.DeepEqual(rule.Querystring_parameters, mr.Querystring_parameters)
 }
@@ -142,14 +152,14 @@ func (rule MappingRule) matchWithParams(mr MappingRule) bool {
 	mr2 := strings.Split(p2, "/")
 
 	var i int
-	for i = 0; i < min(len(mr2), len(mr1)); i++ {
+	for i = 0; i < Min(len(mr2), len(mr1)); i++ {
 		if mr1[i] != mr2[i] && !isParam(mr1[i]) && !isParam(mr2[i]) && !(mr1[i] == "") && !(mr2[i] == "") {
 			break //stop at the first potential mismatch
 		}
 	}
 	//in case the first mismatch is the last piece of any of the rules, check if this matches part of the corresponding piece of the other rule
-	if i >= min(len(mr2), len(mr1))-1 {
-		i = min(len(mr2), len(mr1)) - 1
+	if i >= Min(len(mr2), len(mr1))-1 {
+		i = Min(len(mr2), len(mr1)) - 1
 		if len(mr1) <= len(mr2) {
 			return isParam(mr1[i]) || matchLastPartial(mr2[i], mr1[i])
 		} else {
@@ -174,13 +184,6 @@ func (rule MappingRule) getQuery(pattern string) string {
 		return pattern[lastQuery+1:]
 	}
 	return ""
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }
 
 func trimSuffixes(path string) string {

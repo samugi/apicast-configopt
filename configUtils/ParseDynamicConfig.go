@@ -21,7 +21,7 @@ func InjectMappingRules(fullConfigBytes []byte, fixedConfig model.Configuration)
 			id := proxy["id"].(float64)
 			fixedProxy := fixedConfig.ProxyConfigsOuter[index].ProxyConfig.Content.Proxy
 			if fixedProxy.Id != int64(id) {
-				panic("WhaAAAAAAAAAAAAAAAAAt " + fmt.Sprint(id) + " != " + fmt.Sprint(fixedProxy.Id))
+				panic("Oh no: " + fmt.Sprint(id) + " != " + fmt.Sprint(fixedProxy.Id))
 			}
 			fullConfig.FullConfigContainer["proxy_configs"].([]interface{})[index].(map[string]interface{})["proxy_config"].(map[string]interface{})["content"].(map[string]interface{})["proxy"].(map[string]interface{})["proxy_rules"] = fixedProxy.Proxy_rules
 		}
@@ -39,7 +39,7 @@ func InjectMappingRules(fullConfigBytes []byte, fixedConfig model.Configuration)
 			id := proxy["id"].(float64)
 			fixedProxy := fixedConfigCB.Config.Services[index].Proxy
 			if fixedProxy.Id != int64(id) {
-				panic("WhaAAAAAAAAAAAAAAAAAt " + fmt.Sprint(id) + " != " + fmt.Sprint(fixedProxy.Id))
+				panic("Oh no:  " + fmt.Sprint(id) + " != " + fmt.Sprint(fixedProxy.Id))
 			}
 			fullConfig.FullConfigContainer["config"].(map[string]interface{})["services"].([]interface{})[index].(map[string]interface{})["proxy"].(map[string]interface{})["proxy_rules"] = fixedProxy.Proxy_rules
 		}
@@ -56,7 +56,7 @@ func InjectMappingRules(fullConfigBytes []byte, fixedConfig model.Configuration)
 			id := proxy["id"].(float64)
 			fixedProxy := fixedConfigCC.Services[index].Proxy
 			if fixedProxy.Id != int64(id) {
-				panic("WhaAAAAAAAAAAAAAAAAAt " + fmt.Sprint(id) + " != " + fmt.Sprint(fixedProxy.Id))
+				panic("Oh no:  " + fmt.Sprint(id) + " != " + fmt.Sprint(fixedProxy.Id))
 			}
 			fullConfig.FullConfigContainer["services"].([]interface{})[index].(map[string]interface{})["proxy"].(map[string]interface{})["proxy_rules"] = fixedProxy.Proxy_rules
 		}
@@ -68,7 +68,7 @@ func InjectMappingRules(fullConfigBytes []byte, fixedConfig model.Configuration)
 		fixedProxy := fixedConfigSS.Proxy
 		id := fullConfig.FullConfigContainer["proxy"].(map[string]interface{})["id"].(float64)
 		if fixedProxy.Id != int64(id) {
-			panic("WhaAAAAAAAAAAAAAAAAAt " + fmt.Sprint(id) + " != " + fmt.Sprint(fixedProxy.Id))
+			panic("Oh no:  " + fmt.Sprint(id) + " != " + fmt.Sprint(fixedProxy.Id))
 		}
 		fullConfig.FullConfigContainer["proxy"].(map[string]interface{})["proxy_rules"] = fixedProxy.Proxy_rules
 		return

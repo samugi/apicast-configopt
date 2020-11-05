@@ -204,6 +204,8 @@ func InitializeRules(config model.Configuration) {
 		rules := proxy.Proxy_rules
 		for indexRules := 0; indexRules < len(rules); indexRules++ {
 			rules[indexRules].Initialize(host)
+			model.LongestRuleLength = model.Max(model.LongestRuleLength, len(*rules[indexRules].Pattern))
+			model.LongestHostLength = model.Max(model.LongestHostLength, len(rules[indexRules].Host))
 		}
 	}
 }
@@ -347,7 +349,7 @@ func requestOptimization(currentRule model.MappingRule, rule model.MappingRule) 
 	if !shorter.IsExactMatch {
 		panic("optimizable not ending with $")
 	}
-	fmt.Println("These rules \n" + shorter.String() + ", \n" + longer.String() + "\ncould be optimized by removing the dollar from \n" + shorter.String() + " and deleting \n" + longer.String() + ". Would you like to proceed?  Y/N")
+	fmt.Println("These rules\n" + shorter.String() + ",\n" + longer.String() + "\nCould be optimized by removing the dollar from ID:" + fmt.Sprint(*shorter.Id) + " and deleting ID:" + fmt.Sprint(*longer.Id) + ". Would you like to proceed?  Y/N")
 	//reader := bufio.NewReader(os.Stdin)
 	var response string
 	for {
@@ -363,9 +365,9 @@ func requestOptimization(currentRule model.MappingRule, rule model.MappingRule) 
 
 func requestMappingKeep(rule1 model.MappingRule, rule2 model.MappingRule, ask bool) bool {
 	if ask {
-		fmt.Println("This rule: " + rule1.String() + " collides with: " + rule2.String())
+		fmt.Println("This rule:\n" + rule1.String() + " collides with:\n" + rule2.String())
 	}
-	fmt.Println("Would you like to keep " + rule2.String() + "?  Y/N")
+	fmt.Println("Would you like to keep ID:" + fmt.Sprint(*rule2.Id) + "?  Y/N")
 	var response string
 	for {
 		fmt.Scanln(&response)
@@ -374,6 +376,6 @@ func requestMappingKeep(rule1 model.MappingRule, rule2 model.MappingRule, ask bo
 		} else if strings.EqualFold(response, "N") {
 			return false
 		}
-		fmt.Println("Invalid response, would you like to keep " + rule2.String() + "? Y/N")
+		fmt.Println("Invalid response, would you like to keep ID:" + fmt.Sprint(*rule2.Id) + "? Y/N")
 	}
 }
