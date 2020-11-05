@@ -106,13 +106,13 @@ func (rule MappingRule) matches(mr MappingRule) bool {
 }
 
 func (rule MappingRule) getPathSectionsLength() int {
-	pattern := strings.Trim(*rule.Pattern, "$")
+	pattern := trimSuffixes(*rule.Pattern)
 	mr1 := strings.Split(pattern, "/")
 	return len(mr1)
 }
 
 func (rule MappingRule) getLastSectionLength() int {
-	pattern := strings.Trim(*rule.Pattern, "$")
+	pattern := trimSuffixes(*rule.Pattern)
 	mr1 := strings.Split(pattern, "/")
 	if len(mr1) == 0 {
 		return 0
@@ -122,8 +122,8 @@ func (rule MappingRule) getLastSectionLength() int {
 }
 
 func GetShorter(mr1 *MappingRule, mr2 *MappingRule) *MappingRule {
-	p1 := strings.Trim(*mr1.Pattern, "$")
-	p2 := strings.Trim(*mr2.Pattern, "$")
+	p1 := trimSuffixes(*mr1.Pattern)
+	p2 := trimSuffixes(*mr2.Pattern)
 	if len(p1) < len(p2) {
 		return mr1
 	}
@@ -135,8 +135,8 @@ func (rule MappingRule) matchQP(mr MappingRule) bool {
 }
 
 func (rule MappingRule) matchingPath(mr MappingRule) bool {
-	p1 := strings.Trim(*rule.Pattern, "$")
-	p2 := strings.Trim(*mr.Pattern, "$")
+	p1 := trimSuffixes(*rule.Pattern)
+	p2 := trimSuffixes(*mr.Pattern)
 	if strings.HasPrefix(p1, p2) || strings.HasPrefix(p2, p1) {
 		return true
 	}
@@ -146,30 +146,50 @@ func (rule MappingRule) matchingPath(mr MappingRule) bool {
 	return false
 }
 
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func trimSuffixes(path string) string {
+	path = strings.TrimSuffix(path, "$")
+	path = strings.TrimSuffix(path, "/")
+	path = strings.TrimSuffix(path, "\\")
+	return path
+}
+
 func (rule MappingRule) matchWithParams(mr MappingRule) bool {
-	p1 := strings.Trim(*rule.Pattern, "$")
-	p2 := strings.Trim(*mr.Pattern, "$")
+	p1 := trimSuffixes(*rule.Pattern)
+	p2 := trimSuffixes(*mr.Pattern)
 	mr1 := strings.Split(p1, "/")
 	mr2 := strings.Split(p2, "/")
-	if len(mr1) != len(mr2) {
-		return false
-	}
-	for i := 0; i < len(mr1); i++ {
-		if mr1[i] != mr2[i] && !isParam(mr1[i]) && !isParam(mr2[i]) {
-			return false
+
+	var i int
+	for i = 0; i < min(len(mr2), len(mr1)); i++ {
+		if mr1[i] != mr2[i] && !isParam(mr1[i]) && !isParam(mr2[i]) && !(mr1[i] == "") && !(mr2[i] == "") {
+			break //stop at the first potential mismatch
 		}
 	}
-	last1 := mr1[len(mr1)-1]
-	last2 := mr2[len(mr2)-1]
-	return matchLastPartial(last1, last2)
+	//in case the first mismatch is the last piece of any of the rules, check if this matches part of the corresponding piece of the other rule
+	if i == len(mr2) || i == len(mr1) {
+		i--
+		if len(mr1) <= len(mr2) {
+			return isParam(mr1[i]) || matchLastPartial(mr2[i], mr1[i])
+		} else {
+			return isParam(mr2[i]) || matchLastPartial(mr1[i], mr2[i])
+		}
+	}
+	return mr1[i] == mr2[i] //if it's an intermediate piece, it needs to be identical
 }
 
 func matchLastPartial(last1 string, last2 string) bool {
-	return strings.HasPrefix(last1, last2) || strings.HasPrefix(last2, last1)
+	return strings.HasPrefix(last1, last2)
 }
 
 func isParam(p string) bool {
-	return strings.HasPrefix(p, "{") && strings.HasPrefix(p, "}")
+	return strings.HasPrefix(p, "{") && strings.HasSuffix(p, "}")
 }
 
 func (rule MappingRule) getQuery(pattern string) string {

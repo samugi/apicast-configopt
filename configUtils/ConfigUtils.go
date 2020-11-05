@@ -14,7 +14,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cheggaaa/pb"
 	"github.com/samugi/simple-clargs/clargs"
 )
 
@@ -161,34 +160,34 @@ func ValidateAllProxies(config model.Configuration) {
 				}
 			}
 		}
-		var pbBackend, pbProxy *pb.ProgressBar
-		if Mode == ModeAutoFix || Mode == ModeScan {
-			pbProxy = model.NewProgressBar(len(allRulesToVerify))
-		}
+		//	var pbBackend, pbProxy *pb.ProgressBar
+		//	if Mode == ModeAutoFix || Mode == ModeScan {
+		//		pbProxy = model.NewProgressBar(len(allRulesToVerify))
+		//	}
 		for indexRules := 0; indexRules < len(allRulesToVerify); indexRules++ {
 			validateMappingRule(allRulesToVerify[indexRules], allRulesToVerify, indexRules+1)
 			if Mode == ModeAutoFix || Mode == ModeScan {
-				pbProxy.Increment()
+				//			pbProxy.Increment()
 				time.Sleep(time.Millisecond)
 			}
 		}
 		if Mode == ModeAutoFix || Mode == ModeScan {
-			pbProxy.Finish()
+			//		pbProxy.Finish()
 		}
 
 		for k := range backendRules {
-			if Mode == ModeAutoFix || Mode == ModeScan {
-				pbBackend = model.NewProgressBar(len(backendRules[k]))
-			}
+			//			if Mode == ModeAutoFix || Mode == ModeScan {
+			//				pbBackend = model.NewProgressBar(len(backendRules[k]))
+			//			}
 			for j := 0; j < len(backendRules[k]); j++ {
 				validateMappingRule(backendRules[k][j], backendRules[k], j+1)
 				if Mode == ModeAutoFix || Mode == ModeScan {
-					pbBackend.Increment()
+					//					pbBackend.Increment()
 				}
 				time.Sleep(time.Millisecond)
 			}
 			if Mode == ModeAutoFix || Mode == ModeScan {
-				pbBackend.Finish()
+				//				pbBackend.Finish()
 			}
 		}
 		if Mode == ModeScan {
