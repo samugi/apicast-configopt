@@ -90,6 +90,7 @@ func (rule MappingRule) getRealPath() string {
 
 func (rule *MappingRule) SetExactMatch(em bool) {
 	rule.IsExactMatch = em
+	*rule.Pattern = strings.TrimRight(*rule.Pattern, "$")
 }
 
 func (rule MappingRule) optimizationMatch(mr MappingRule) bool {
