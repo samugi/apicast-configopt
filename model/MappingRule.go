@@ -147,10 +147,8 @@ func (rule MappingRule) matchWithParams(mr MappingRule) bool {
 		}
 	}
 	//in case the first mismatch is the last piece of any of the rules, check if this matches part of the corresponding piece of the other rule
-	if i >= len(mr2)-1 || i >= len(mr1)-1 {
-		if i == len(mr2) || i == len(mr1) {
-			i-- //set i to the last index of the shortest
-		}
+	if i >= min(len(mr2), len(mr1))-1 {
+		i = min(len(mr2), len(mr1)) - 1
 		if len(mr1) <= len(mr2) {
 			return isParam(mr1[i]) || matchLastPartial(mr2[i], mr1[i])
 		} else {
