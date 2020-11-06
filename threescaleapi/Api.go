@@ -64,8 +64,6 @@ func UpdateProxyRule(proxyRule model.MappingRule) {
 }
 
 func UpdateBackendRule(backendRule model.MappingRule) {
-	//curl -v  -X PUT "https://3scale-admin.amp28.apps-crc.testing/admin/api/backend_apis/backendapiid/mapping_rules/mid.json" -d 'access_token=token&pattern=patterndddasdsd'
-
 	mid := *backendRule.Id
 	bid := *backendRule.Owner_id
 	requestUrl := adminPortal + "/admin/api/backend_apis/" + fmt.Sprint(bid) + "/mapping_rules/" + fmt.Sprint(mid) + ".json"
@@ -130,7 +128,6 @@ func DeleteProxyRule(proxyRule model.MappingRule) {
 }
 
 func DeleteBackendRule(backendRule model.MappingRule) {
-
 	mid := *backendRule.Id
 	bid := *backendRule.Owner_id
 	requestUrl := adminPortal + "/admin/api/backend_apis/" + fmt.Sprint(bid) + "/mapping_rules/" + fmt.Sprint(mid) + ".json"

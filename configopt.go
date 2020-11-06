@@ -9,7 +9,7 @@ import (
 	"github.com/samugi/simple-clargs/clargs"
 )
 
-var usage = "usage: ./configopt [options...] --configuration <arg>"
+var usage = "usage: configopt [options...] --configuration <arg>"
 
 func main() {
 	configUtils.Mode = configUtils.ModeScan
@@ -20,7 +20,7 @@ func main() {
 	configUtils.OptionInteractive = clargs.New("-i", "--interactive", "Enables interactive mode", false, false)
 	configUtils.OptionPathRoutingOnly = clargs.New("-p", "--pathroutingonly", "Runs in path routing only mode. Use this if you have APICAST_PATH_ROUTING_ONLY=true", false, false)
 	configUtils.OptionHelp = clargs.New("-h", "--help", "Show this help message", false, false)
-	configUtils.OptionAutoFix = clargs.New("-a", "--autofix", "Automatically fixes config. Pass value "+configUtils.AutoFix+" to just remove duplicates, "+configUtils.AutoOptimize+" to also auto-optimize", true, false)
+	configUtils.OptionAutoFix = clargs.New("-a", "--autofix", "Automatically fixes config. Pass value `"+configUtils.AutoFix+"` to just remove duplicates, `"+configUtils.AutoOptimize+"` to also auto-optimize", true, false)
 	configUtils.OptionUpdateRemote = clargs.New("-u", "--updateremote", "Updates the remote configuration. This only works together with interactive or autofix modes. Pass the remote like: `https://{access_token}@admin-portal.example.org` as a value for this argument.", true, false)
 
 	options := []*clargs.Option{}
