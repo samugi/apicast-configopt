@@ -91,3 +91,67 @@ func UpdateBackendRule(backendRule model.MappingRule) {
 
 	defer response.Body.Close()
 }
+
+func DeleteProxyRule(proxyRule model.MappingRule) {
+	mid := *proxyRule.Id
+	pid := *proxyRule.Proxy_id
+	requestUrl := adminPortal + "/admin/api/services/" + fmt.Sprint(pid) + "/proxy/mapping_rules/" + fmt.Sprint(mid) + ".xml"
+
+	data := url.Values{}
+	data.Set("access_token", accessToken)
+
+	client := &http.Client{}
+	request, err := http.NewRequest("DELETE", requestUrl, strings.NewReader(data.Encode()))
+	if err != nil {
+		panic(err)
+	}
+
+	request.Header.Set("Accept", "*/*")
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	response, err := client.Do(request)
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer response.Body.Close()
+	// contents, err := ioutil.ReadAll(response.Body)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// fmt.Println("The calculated length is:", len(string(contents)), "for the url:", requestUrl)
+	// fmt.Println("   ", response.StatusCode)
+	// hdr := response.Header
+	// for key, value := range hdr {
+	// 	fmt.Println("   ", key, ":", value)
+	// }
+	// fmt.Println(contents)
+}
+
+func DeleteBackendRule(backendRule model.MappingRule) {
+
+	mid := *backendRule.Id
+	bid := *backendRule.Owner_id
+	requestUrl := adminPortal + "/admin/api/backend_apis/" + fmt.Sprint(bid) + "/mapping_rules/" + fmt.Sprint(mid) + ".json"
+
+	data := url.Values{}
+	data.Set("access_token", accessToken)
+
+	client := &http.Client{}
+	request, err := http.NewRequest("DELETE", requestUrl, strings.NewReader(data.Encode()))
+	if err != nil {
+		panic(err)
+	}
+
+	request.Header.Set("Accept", "*/*")
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	response, err := client.Do(request)
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer response.Body.Close()
+}

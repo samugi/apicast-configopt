@@ -15,10 +15,10 @@ var OutputFile string
 var Remote string
 
 func RewriteConfig(config model.Configuration) {
-	config = cleanConfig(config)
-	if true {
+	if OptionUpdateRemote.ValueB() {
 		updateRemoteMappingRules(config)
 	}
+	config = cleanConfig(config)
 	FullConfig = InjectMappingRules(FullConfigBytes, config)
 	if OutputFile != "" {
 		jsonized, err := json.Marshal(&FullConfig.FullConfigContainer)
@@ -40,18 +40,40 @@ func RewriteConfig(config model.Configuration) {
 }
 
 func updateRemoteMappingRules(config model.Configuration) {
-	mrId := int64(5)
-	bId := int64(3)
-	ptrn := "/test/edited/backend"
-	mr := model.MappingRule{
-		Id:       &mrId,
-		Owner_id: &bId,
-		Pattern:  &ptrn,
+	if Remote == "" {
+		panic("Need to pass a valid admin portal URL like: https://{TOKEN}@admin-portal.example.org")
 	}
-
 	threescaleapi.Init(Remote)
-	//threescaleapi.UpdateProxyRule(mr)
-	threescaleapi.UpdateBackendRule(mr)
+
+	for _, proxyConfigOuter := range config.ProxyConfigsOuter {
+		for _, rule := range proxyConfigOuter.ProxyConfig.Content.Proxy.Proxy_rules {
+			if rule.IsMarkedForDeletion {
+				deleteMappingRule(rule)
+			} else if rule.IsUpdated {
+				updateMappingRule(rule)
+			}
+		}
+	}
+}
+
+func deleteMappingRule(rule model.MappingRule) {
+	if rule.Owner_type == nil || *rule.Owner_type == model.OwnerTypeProxy {
+		threescaleapi.DeleteProxyRule(rule)
+	} else if *rule.Owner_type == model.OwnerTypeBackend {
+		threescaleapi.DeleteBackendRule(rule)
+	} else {
+		panic("owner type not allowed")
+	}
+}
+
+func updateMappingRule(rule model.MappingRule) {
+	if rule.Owner_type == nil || *rule.Owner_type == model.OwnerTypeProxy {
+		threescaleapi.UpdateProxyRule(rule)
+	} else if *rule.Owner_type == model.OwnerTypeBackend {
+		threescaleapi.UpdateBackendRule(rule)
+	} else {
+		panic("owner type not allowed")
+	}
 }
 
 // func removeRule(proxyRules []model.MappingRule, i int) []model.MappingRule {

@@ -14,7 +14,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cheggaaa/pb"
 	"github.com/samugi/simple-clargs/clargs"
 )
 
@@ -26,6 +25,7 @@ var OptionPathRoutingOnly clargs.Option
 var OptionHelp clargs.Option
 var OptionConfirmAll clargs.Option
 var OptionAutoFix clargs.Option
+var OptionUpdateRemote clargs.Option
 var Mode string
 var FullConfig model.DynamicConfig
 var FullConfigBytes []byte
@@ -40,8 +40,6 @@ const (
 	ConfigBoot          = "CONFIG_BOOT"
 	ConfigConfig        = "CONFIG_CONFIG"
 	ConfigSingleService = "CONFIG_SINGLE_SERVICE"
-	OwnerTypeProxy      = "Proxy"
-	OwnerTypeBackend    = "BackendApi"
 )
 
 func ExtractConfigJSONFromFileWithStructs(inputFilePath string) model.Configuration {
@@ -146,9 +144,9 @@ func ValidateAllProxies(config model.Configuration) {
 			rulesPnt := &((*proxyPointer).Proxy_rules)
 			for pRulesInd := 0; pRulesInd < len(*rulesPnt); pRulesInd++ {
 				// only add proxy rules, not backend rules
-				if (*rulesPnt)[pRulesInd].Owner_type == nil || *(*rulesPnt)[pRulesInd].Owner_type == "" || *(*rulesPnt)[pRulesInd].Owner_type == OwnerTypeProxy {
+				if (*rulesPnt)[pRulesInd].Owner_type == nil || *(*rulesPnt)[pRulesInd].Owner_type == "" || *(*rulesPnt)[pRulesInd].Owner_type == model.OwnerTypeProxy {
 					allRulesToVerify = append(allRulesToVerify, &((*rulesPnt)[pRulesInd]))
-				} else if (*rulesPnt)[pRulesInd].Owner_type != nil && *(*rulesPnt)[pRulesInd].Owner_type == OwnerTypeBackend {
+				} else if (*rulesPnt)[pRulesInd].Owner_type != nil && *(*rulesPnt)[pRulesInd].Owner_type == model.OwnerTypeBackend {
 					var id int64
 					if (*rulesPnt)[pRulesInd].Owner_id != nil {
 						id = *(*rulesPnt)[pRulesInd].Owner_id
@@ -161,35 +159,35 @@ func ValidateAllProxies(config model.Configuration) {
 				}
 			}
 		}
-		var pbBackend, pbProxy *pb.ProgressBar
-		if Mode == ModeAutoFix || Mode == ModeScan {
-			pbProxy = model.NewProgressBar(len(allRulesToVerify))
-		}
+		// var pbBackend, pbProxy *pb.ProgressBar
+		// if Mode == ModeAutoFix || Mode == ModeScan {
+		// 	pbProxy = model.NewProgressBar(len(allRulesToVerify))
+		// }
 		for indexRules := 0; indexRules < len(allRulesToVerify); indexRules++ {
 			validateMappingRule(allRulesToVerify[indexRules], allRulesToVerify, indexRules+1)
-			if Mode == ModeAutoFix || Mode == ModeScan {
-				pbProxy.Increment()
-				time.Sleep(time.Millisecond)
-			}
+			// if Mode == ModeAutoFix || Mode == ModeScan {
+			// 	pbProxy.Increment()
+			// 	time.Sleep(time.Millisecond)
+			// }
 		}
-		if Mode == ModeAutoFix || Mode == ModeScan {
-			pbProxy.Finish()
-		}
+		// if Mode == ModeAutoFix || Mode == ModeScan {
+		// 	pbProxy.Finish()
+		// }
 
 		for k := range backendRules {
-			if Mode == ModeAutoFix || Mode == ModeScan {
-				pbBackend = model.NewProgressBar(len(backendRules[k]))
-			}
+			// if Mode == ModeAutoFix || Mode == ModeScan {
+			// 	pbBackend = model.NewProgressBar(len(backendRules[k]))
+			// }
 			for j := 0; j < len(backendRules[k]); j++ {
 				validateMappingRule(backendRules[k][j], backendRules[k], j+1)
-				if Mode == ModeAutoFix || Mode == ModeScan {
-					pbBackend.Increment()
-				}
+				// if Mode == ModeAutoFix || Mode == ModeScan {
+				// 	pbBackend.Increment()
+				// }
 				time.Sleep(time.Millisecond)
 			}
-			if Mode == ModeAutoFix || Mode == ModeScan {
-				pbBackend.Finish()
-			}
+			// if Mode == ModeAutoFix || Mode == ModeScan {
+			// 	pbBackend.Finish()
+			// }
 		}
 		if Mode == ModeScan {
 			PrintIssues()
@@ -298,7 +296,7 @@ func calculateSeverity(rule1 *model.MappingRule, rule2 *model.MappingRule) (retS
 	retSev = 2
 	if rule1.CanBeOptimized(rule2) {
 		retSev = 5
-	} else if rule1.Owner_type != nil && *rule1.Owner_type == OwnerTypeBackend {
+	} else if rule1.Owner_type != nil && *rule1.Owner_type == model.OwnerTypeBackend {
 		retSev = 4
 	} else if (rule1.Host == rule2.Host || globalUtils.PathRoutingOnly) && *rule1.Proxy_id != *rule2.Proxy_id {
 		retSev = 1

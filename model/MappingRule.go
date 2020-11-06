@@ -10,6 +10,11 @@ import (
 var LongestRuleLength int
 var LongestHostLength int
 
+const (
+	OwnerTypeProxy   = "Proxy"
+	OwnerTypeBackend = "BackendApi"
+)
+
 type MappingRule struct {
 	Id                     *int64            `json:"id"`
 	Proxy_id               *int64            `json:"proxy_id"`
@@ -35,6 +40,7 @@ type MappingRule struct {
 	IsExactMatch        bool   `json:"-"`
 	Host                string `json:"-"`
 	IsMarkedForDeletion bool   `json:"-"`
+	IsUpdated           bool   `json:"-"`
 }
 
 func (rule *MappingRule) Initialize(host string) {
@@ -93,6 +99,7 @@ func (rule MappingRule) getPattern() string {
 func (rule *MappingRule) SetExactMatch(em bool) {
 	rule.IsExactMatch = em
 	*rule.Pattern = strings.TrimRight(*rule.Pattern, "$")
+	(*rule).IsUpdated = true
 }
 
 func (rule MappingRule) optimizationMatch(mr MappingRule) bool {
