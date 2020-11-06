@@ -3,6 +3,7 @@ package configUtils
 import (
 	"configopt/globalUtils"
 	"configopt/model"
+	"configopt/threescaleapi"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -11,9 +12,13 @@ import (
 )
 
 var OutputFile string
+var Remote string
 
 func RewriteConfig(config model.Configuration) {
 	config = cleanConfig(config)
+	if true {
+		updateRemoteMappingRules(config)
+	}
 	FullConfig = InjectMappingRules(FullConfigBytes, config)
 	if OutputFile != "" {
 		jsonized, err := json.Marshal(&FullConfig.FullConfigContainer)
@@ -32,6 +37,21 @@ func RewriteConfig(config model.Configuration) {
 		fmt.Fprint(file, string(jsonized))
 		file.Close()
 	}
+}
+
+func updateRemoteMappingRules(config model.Configuration) {
+	mrId := int64(5)
+	bId := int64(3)
+	ptrn := "/test/edited/backend"
+	mr := model.MappingRule{
+		Id:       &mrId,
+		Owner_id: &bId,
+		Pattern:  &ptrn,
+	}
+
+	threescaleapi.Init(Remote)
+	//threescaleapi.UpdateProxyRule(mr)
+	threescaleapi.UpdateBackendRule(mr)
 }
 
 // func removeRule(proxyRules []model.MappingRule, i int) []model.MappingRule {
