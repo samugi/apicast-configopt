@@ -5,7 +5,7 @@ Configopt for APIcast helps in the process of troubleshooting and optimising the
 ```
 git clone https://github.com/samugi/apicast-configopt.git
 cd apicast-configopt
-go build
+go build -o configopt
 ```
 
 ## Start
