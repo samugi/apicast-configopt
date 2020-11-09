@@ -1,14 +1,15 @@
 package configUtils
 
 import (
-	"configopt/globalUtils"
-	"configopt/model"
-	"configopt/threescaleapi"
 	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
+
+	"github.com/samugi/apicast-configopt/globalUtils"
+	"github.com/samugi/apicast-configopt/model"
+	"github.com/samugi/apicast-configopt/threescaleapi"
 )
 
 var OutputFile string

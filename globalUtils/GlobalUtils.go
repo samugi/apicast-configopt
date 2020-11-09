@@ -1,6 +1,6 @@
 package globalUtils
 
-import "configopt/model"
+import "github.com/samugi/apicast-configopt/model"
 
 var Issues []model.Issue
 var PathRoutingOnly bool

@@ -1,10 +1,11 @@
 package main
 
 import (
-	"configopt/configUtils"
-	"configopt/globalUtils"
 	"fmt"
 	"os"
+
+	"github.com/samugi/apicast-configopt/configUtils"
+	"github.com/samugi/apicast-configopt/globalUtils"
 
 	"github.com/samugi/simple-clargs/clargs"
 )

@@ -1,12 +1,13 @@
 package threescaleapi
 
 import (
-	"configopt/model"
 	"crypto/tls"
 	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/samugi/apicast-configopt/model"
 )
 
 var adminPortal string

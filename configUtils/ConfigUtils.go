@@ -2,8 +2,6 @@ package configUtils
 
 import (
 	"bytes"
-	"configopt/globalUtils"
-	"configopt/model"
 	"encoding/gob"
 	"encoding/json"
 	"fmt"
@@ -13,6 +11,9 @@ import (
 	"reflect"
 	"strings"
 	"time"
+
+	"github.com/samugi/apicast-configopt/globalUtils"
+	"github.com/samugi/apicast-configopt/model"
 
 	"github.com/samugi/simple-clargs/clargs"
 )

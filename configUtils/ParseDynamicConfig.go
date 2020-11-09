@@ -1,9 +1,10 @@
 package configUtils
 
 import (
-	"configopt/model"
 	"encoding/json"
 	"fmt"
+
+	"github.com/samugi/apicast-configopt/model"
 )
 
 func InjectMappingRules(fullConfigBytes []byte, fixedConfig model.Configuration) (fullConfig model.DynamicConfig) {
