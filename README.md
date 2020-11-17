@@ -12,13 +12,13 @@ go build -o configopt
 `./configopt --help`
 
 ## Running on Docker - examples
-### Simple run
+**Simple run**
 $ docker run --rm golang sh -c "go get github.com/samugi/apicast-configopt/... && exec apicast-configopt --help"
 
-### Config scan example
+**Config scan example**
 $ docker run -v $(pwd)/YOUR_CONFIGURATION.json:/go/config.json --rm golang sh -c "go get github.com/samugi/apicast-configopt/... && exec apicast-configopt -c /go/config.json"
 
-### Output example
+**Output example**
 $ docker run -v $(pwd)/YOUR_CONFIGURATION.json:/go/config.json -v $(pwd):/go/output:rw --rm golang sh -c "go get github.com/samugi/apicast-configopt/... && exec apicast-configopt -c /go/config.json -o /go/output/result.txt"
 
 
