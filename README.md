@@ -13,14 +13,19 @@ go build -o configopt
 
 ## Running on Docker - examples
 **Simple run**
+```
 $ docker run --rm golang sh -c "go get github.com/samugi/apicast-configopt/... && exec apicast-configopt --help"
+```
 
 **Config scan example**
+```
 $ docker run -v $(pwd)/YOUR_CONFIGURATION.json:/go/config.json --rm golang sh -c "go get github.com/samugi/apicast-configopt/... && exec apicast-configopt -c /go/config.json"
+```
 
 **Output example**
+```
 $ docker run -v $(pwd)/YOUR_CONFIGURATION.json:/go/config.json -v $(pwd):/go/output:rw --rm golang sh -c "go get github.com/samugi/apicast-configopt/... && exec apicast-configopt -c /go/config.json -o /go/output/result.txt"
-
+```
 
 ## Features
 - Overview of issues found in the configuration ordered by severity (at the moment limited to mapping rules conflicts)
