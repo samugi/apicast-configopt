@@ -11,8 +11,8 @@ go build -o configopt
 ## Start
 `./configopt --help`
 
-## Docker
-### Running on Docker - examples (no Go required)
+## Docker (no Go required)
+### Running on Docker - examples 
 **Simple run**
 ```
 $ docker run --rm golang sh -c "go get github.com/samugi/apicast-configopt/... && exec apicast-configopt --help"
