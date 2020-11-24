@@ -30,7 +30,7 @@ $ docker run -v $(pwd)/YOUR_CONFIGURATION.json:/go/config.json -v $(pwd):/go/out
 
 **Interactive mode with output example**
 ```
-$ docker run -i -v $(pwd):/go/output:rw -v $(pwd)/YOUR_CONFIGURATION.json:/go/config.json --rm golang sh -c "go get github.com/samugi/apicast-configopt/... && exec apicast-configopt -c /go/config.json -i -o /go/output/output.txt"
+$ docker run -i -v $(pwd):/go/output:rw -v $(pwd)/YOUR_CONFIGURATION.json:/go/config.json --rm golang sh -c "go get github.com/samugi/apicast-configopt/... && exec apicast-configopt -c /go/config.json -i -o /go/output/output.json"
 ```
 
 ### Build with Docker, execute locally (Linux only)
