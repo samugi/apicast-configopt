@@ -26,10 +26,10 @@ type ProxyRuleUpdateBody struct {
 	pattern      string
 }
 
-func UpdateProxyRule(proxyRule model.MappingRule) {
+//FIXME service id should be the proxy's service_id field
+func UpdateProxyRule(proxyRule model.MappingRule, serviceId string) {
 	mid := *proxyRule.Id
-	pid := *proxyRule.Proxy_id
-	requestUrl := adminPortal + "/admin/api/services/" + fmt.Sprint(pid) + "/proxy/mapping_rules/" + fmt.Sprint(mid) + ".xml"
+	requestUrl := adminPortal + "/admin/api/services/" + serviceId + "/proxy/mapping_rules/" + fmt.Sprint(mid) + ".xml"
 
 	data := url.Values{}
 	data.Set("access_token", accessToken)
@@ -91,10 +91,10 @@ func UpdateBackendRule(backendRule model.MappingRule) {
 	defer response.Body.Close()
 }
 
-func DeleteProxyRule(proxyRule model.MappingRule) {
+//FIXME service id should be the proxy's service_id field
+func DeleteProxyRule(proxyRule model.MappingRule, serviceId string) {
 	mid := *proxyRule.Id
-	pid := *proxyRule.Proxy_id
-	requestUrl := adminPortal + "/admin/api/services/" + fmt.Sprint(pid) + "/proxy/mapping_rules/" + fmt.Sprint(mid) + ".xml"
+	requestUrl := adminPortal + "/admin/api/services/" + serviceId + "/proxy/mapping_rules/" + fmt.Sprint(mid) + ".xml"
 
 	data := url.Values{}
 	data.Set("access_token", accessToken)

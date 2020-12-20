@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 
 	"github.com/samugi/apicast-configopt/globalUtils"
 	"github.com/samugi/apicast-configopt/model"
@@ -47,19 +48,21 @@ func updateRemoteMappingRules(config model.Configuration) {
 	threescaleapi.Init(Remote)
 
 	for _, proxyConfigOuter := range config.ProxyConfigsOuter {
-		for _, rule := range proxyConfigOuter.ProxyConfig.Content.Proxy.Proxy_rules {
+		proxy := proxyConfigOuter.ProxyConfig.Content.Proxy
+		serviceId := proxy.ServiceId
+		for _, rule := range proxy.Proxy_rules {
 			if rule.IsMarkedForDeletion {
-				deleteMappingRule(rule)
+				deleteMappingRule(rule, strconv.FormatInt(serviceId, 10))
 			} else if rule.IsUpdated {
-				updateMappingRule(rule)
+				updateMappingRule(rule, strconv.FormatInt(serviceId, 10))
 			}
 		}
 	}
 }
 
-func deleteMappingRule(rule model.MappingRule) {
+func deleteMappingRule(rule model.MappingRule, serviceId string) {
 	if rule.Owner_type == nil || *rule.Owner_type == model.OwnerTypeProxy {
-		threescaleapi.DeleteProxyRule(rule)
+		threescaleapi.DeleteProxyRule(rule, serviceId)
 	} else if *rule.Owner_type == model.OwnerTypeBackend {
 		threescaleapi.DeleteBackendRule(rule)
 	} else {
@@ -67,9 +70,9 @@ func deleteMappingRule(rule model.MappingRule) {
 	}
 }
 
-func updateMappingRule(rule model.MappingRule) {
+func updateMappingRule(rule model.MappingRule, serviceId string) {
 	if rule.Owner_type == nil || *rule.Owner_type == model.OwnerTypeProxy {
-		threescaleapi.UpdateProxyRule(rule)
+		threescaleapi.UpdateProxyRule(rule, serviceId)
 	} else if *rule.Owner_type == model.OwnerTypeBackend {
 		threescaleapi.UpdateBackendRule(rule)
 	} else {
