@@ -160,35 +160,15 @@ func ValidateAllProxies(config model.Configuration) {
 				}
 			}
 		}
-		// var pbBackend, pbProxy *pb.ProgressBar
-		// if Mode == ModeAutoFix || Mode == ModeScan {
-		// 	pbProxy = model.NewProgressBar(len(allRulesToVerify))
-		// }
 		for indexRules := 0; indexRules < len(allRulesToVerify); indexRules++ {
 			validateMappingRule(allRulesToVerify[indexRules], allRulesToVerify, indexRules+1)
-			// if Mode == ModeAutoFix || Mode == ModeScan {
-			// 	pbProxy.Increment()
-			// 	time.Sleep(time.Millisecond)
-			// }
 		}
-		// if Mode == ModeAutoFix || Mode == ModeScan {
-		// 	pbProxy.Finish()
-		// }
 
 		for k := range backendRules {
-			// if Mode == ModeAutoFix || Mode == ModeScan {
-			// 	pbBackend = model.NewProgressBar(len(backendRules[k]))
-			// }
 			for j := 0; j < len(backendRules[k]); j++ {
 				validateMappingRule(backendRules[k][j], backendRules[k], j+1)
-				// if Mode == ModeAutoFix || Mode == ModeScan {
-				// 	pbBackend.Increment()
-				// }
 				time.Sleep(time.Millisecond)
 			}
-			// if Mode == ModeAutoFix || Mode == ModeScan {
-			// 	pbBackend.Finish()
-			// }
 		}
 		if Mode == ModeScan {
 			PrintIssues()
@@ -260,10 +240,10 @@ func validateMappingRule(rule *model.MappingRule, allRules []*model.MappingRule,
 				}
 			}
 		} else if Mode == ModeAutoFix {
-			if !(*rule).IsMarkedForDeletion && !(*currentRule).IsMarkedForDeletion && rule.BrutalMatch(currentRule) {
+			if !(*rule).IsMarkedForDeletion && !(*currentRule).IsMarkedForDeletion && rule.BrutalMatch(currentRule) && calculateSeverity(rule, currentRule) == 1 {
 				ruleToDelete := getAutoDelete(rule, currentRule)
 				(*ruleToDelete).SetMarkedForDeletion(true)
-			} else if !(*rule).IsMarkedForDeletion && !(*currentRule).IsMarkedForDeletion && rule.CanBeOptimized(currentRule) && OptionAutoFix.Value() == AutoOptimize {
+			} else if !(*rule).IsMarkedForDeletion && !(*currentRule).IsMarkedForDeletion && (rule.BrutalMatch(currentRule) || rule.CanBeOptimized(currentRule)) && OptionAutoFix.Value() == AutoOptimize {
 				shorter := model.GetShorter(currentRule, rule)
 				var longer *model.MappingRule
 				if reflect.DeepEqual(shorter, currentRule) {
