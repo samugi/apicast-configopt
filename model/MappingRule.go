@@ -85,11 +85,11 @@ func (rule MappingRule) String() string {
 }
 
 func (rule MappingRule) BrutalMatch(mr *MappingRule) bool {
-	return rule.matches(*mr) && !rule.optimizationMatch(*mr)
+	return rule.Matches(*mr) && !rule.optimizationMatch(*mr)
 }
 
 func (rule MappingRule) CanBeOptimized(mr *MappingRule) bool {
-	return rule.matches(*mr) && rule.optimizationMatch(*mr)
+	return rule.Matches(*mr) && rule.optimizationMatch(*mr)
 }
 
 func (rule MappingRule) getPattern() string {
@@ -108,7 +108,7 @@ func (rule MappingRule) optimizationMatch(mr MappingRule) bool {
 	return !sameSectionsLengths && shorterExactMatch
 }
 
-func (rule MappingRule) matches(mr MappingRule) bool {
+func (rule MappingRule) Matches(mr MappingRule) bool {
 	matghingMethods := strings.EqualFold(*rule.Http_method, *mr.Http_method)
 	matchingQP := rule.matchQP(mr)
 	matchingPath := rule.matchWithParams(mr)

@@ -200,20 +200,24 @@ func validateMappingRule(rule *model.MappingRule, allRules []*model.MappingRule,
 			continue
 		}
 		severity := calculateSeverity(rule, currentRule)
+
 		if Mode == ModeScan {
 			var description string
-			if rule.BrutalMatch(currentRule) || rule.CanBeOptimized(currentRule) {
-				if rule.BrutalMatch(currentRule) {
-					description = "one rule matches the other"
-				} else if rule.CanBeOptimized(currentRule) {
-					description = "rules could be optimized"
-				}
-				rules := []model.MappingRule{*rule, *currentRule}
-				issue := model.Issue{Rules: rules, Description: description, Severity: severity}
-				globalUtils.Issues = append(globalUtils.Issues, issue)
+
+			if rule.BrutalMatch(currentRule) {
+				description = globalUtils.RulesMatch
+			} else if rule.CanBeOptimized(currentRule) {
+				description = globalUtils.RulesOpt
+			} else {
+				continue
 			}
+
+			rules := []model.MappingRule{*rule, *currentRule}
+			issue := model.Issue{Rules: rules, Description: description, Severity: severity}
+			globalUtils.Issues = append(globalUtils.Issues, issue)
+
 		} else if Mode == ModeInteractive {
-			if !(*rule).IsMarkedForDeletion && !(*currentRule).IsMarkedForDeletion && rule.BrutalMatch(currentRule) {
+			if rulesNotDeletedMatch(rule, currentRule) {
 				keep := !OptionConfirmAll.ValueB() && requestMappingKeep(*rule, *currentRule, true)
 				if !keep {
 					(*currentRule).SetMarkedForDeletion(true)
@@ -223,7 +227,7 @@ func validateMappingRule(rule *model.MappingRule, allRules []*model.MappingRule,
 						(*rule).SetMarkedForDeletion(true)
 					}
 				}
-			} else if !(*rule).IsMarkedForDeletion && !(*currentRule).IsMarkedForDeletion && rule.CanBeOptimized(currentRule) {
+			} else if rulesNotDeletedCanBeOptimized(rule, currentRule) {
 				optimize := OptionConfirmAll.ValueB() || requestOptimization(*currentRule, *rule)
 				shorter := model.GetShorter(currentRule, rule)
 				var longer *model.MappingRule
@@ -240,10 +244,10 @@ func validateMappingRule(rule *model.MappingRule, allRules []*model.MappingRule,
 				}
 			}
 		} else if Mode == ModeAutoFix {
-			if !(*rule).IsMarkedForDeletion && !(*currentRule).IsMarkedForDeletion && rule.BrutalMatch(currentRule) && calculateSeverity(rule, currentRule) == 1 {
+			if rulesNotDeletedMatchHighSev(rule, currentRule) {
 				ruleToDelete := getAutoDelete(rule, currentRule)
 				(*ruleToDelete).SetMarkedForDeletion(true)
-			} else if !(*rule).IsMarkedForDeletion && !(*currentRule).IsMarkedForDeletion && (rule.BrutalMatch(currentRule) || rule.CanBeOptimized(currentRule)) && OptionAutoFix.Value() == AutoOptimize {
+			} else if rulesNotDeletedMatchOrOptimize(rule, currentRule) {
 				shorter := model.GetShorter(currentRule, rule)
 				var longer *model.MappingRule
 				if reflect.DeepEqual(shorter, currentRule) {
@@ -259,6 +263,22 @@ func validateMappingRule(rule *model.MappingRule, allRules []*model.MappingRule,
 			}
 		}
 	}
+}
+
+func rulesNotDeletedMatchOrOptimize(rule1 *model.MappingRule, rule2 *model.MappingRule) bool {
+	return !(*rule1).IsMarkedForDeletion && !(*rule2).IsMarkedForDeletion && rule1.Matches(*rule2) && OptionAutoFix.Value() == AutoOptimize
+}
+
+func rulesNotDeletedMatchHighSev(rule1 *model.MappingRule, rule2 *model.MappingRule) bool {
+	return rulesNotDeletedMatch(rule1, rule2) && calculateSeverity(rule1, rule2) == 1
+}
+
+func rulesNotDeletedMatch(rule1 *model.MappingRule, rule2 *model.MappingRule) bool {
+	return !(*rule1).IsMarkedForDeletion && !(*rule2).IsMarkedForDeletion && rule1.BrutalMatch(rule2)
+}
+
+func rulesNotDeletedCanBeOptimized(rule1 *model.MappingRule, rule2 *model.MappingRule) bool {
+	return !(*rule1).IsMarkedForDeletion && !(*rule2).IsMarkedForDeletion && rule1.CanBeOptimized(rule2)
 }
 
 //for now let's auto delete the longest
