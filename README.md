@@ -1,3 +1,5 @@
+# Archived: apicast-configopt is now part of [3scale-insights-rules](https://gitlab.cee.redhat.com/red-hat-3scale-support/3scale-insights-rules)
+
 # APIcast configopt
 Configopt for APIcast helps in the process of troubleshooting and optimising the configuration for [APIcast](https://github.com/3scale/apicast).
 
